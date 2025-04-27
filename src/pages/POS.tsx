@@ -9,6 +9,13 @@ import { BarcodeScanner } from "@/components/pos/BarcodeScanner";
 import { MedicationInfoCard } from "@/components/pos/MedicationInfoCard";
 import { PaymentSummary } from "@/components/pos/PaymentSummary";
 import { InteractionAlert } from "@/components/pos/InteractionAlert";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { CalendarIcon, Printer, Receipt } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export interface Medication {
   id: string;
@@ -26,12 +33,27 @@ interface CartItem extends Medication {
   quantity: number;
 }
 
+interface CustomerInfo {
+  name: string;
+  phone: string;
+  insuranceProvider?: string;
+  insuranceNumber?: string;
+}
+
 const POS = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [scannedMedication, setScannedMedication] = useState<Medication | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showInteractionAlert, setShowInteractionAlert] = useState(false);
   const [interactionDetails, setInteractionDetails] = useState<string[]>([]);
+  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
+    name: "",
+    phone: "",
+    insuranceProvider: "",
+    insuranceNumber: ""
+  });
+  const [receiptDate, setReceiptDate] = useState<Date>(new Date());
   
   // Sample medication database
   const medicationDatabase: Medication[] = [
@@ -74,11 +96,32 @@ const POS = () => {
       expiryDate: "2025-09-22",
       daysToExpiry: 150,
       interactions: ["Lipitor", "Ibuprofen"]
+    },
+    {
+      id: "MED005",
+      name: "Ibuprofen 400mg",
+      generic: "Advil",
+      price: 8.99,
+      quantity: 50,
+      batchNumber: "IBU202401",
+      expiryDate: "2026-05-15",
+      daysToExpiry: 400,
+      interactions: ["Warfarin"]
+    },
+    {
+      id: "MED006",
+      name: "Paracetamol 500mg",
+      generic: "Tylenol",
+      price: 7.50,
+      quantity: 100,
+      batchNumber: "PCM202402",
+      expiryDate: "2026-01-10",
+      daysToExpiry: 280,
     }
   ];
 
   const handleBarcodeScan = (barcode: string) => {
-    // Simulate barcode scanning by matching against medication IDs
+    // Scan by barcode/ID
     const medication = medicationDatabase.find(med => med.id === barcode);
     
     if (medication) {
@@ -92,6 +135,27 @@ const POS = () => {
       } else {
         addToCart(medication);
       }
+    }
+  };
+
+  const handleSearch = (query: string) => {
+    // Search by medication name or generic name
+    const searchResult = medicationDatabase.find(med => 
+      med.name.toLowerCase().includes(query.toLowerCase()) ||
+      (med.generic && med.generic.toLowerCase().includes(query.toLowerCase()))
+    );
+    
+    if (searchResult) {
+      setScannedMedication(searchResult);
+      
+      // Check for interactions with items already in cart
+      const potentialInteractions = checkInteractions(searchResult);
+      if (potentialInteractions.length > 0) {
+        setInteractionDetails(potentialInteractions);
+        setShowInteractionAlert(true);
+      }
+    } else {
+      toast.error("Medication not found in database");
     }
   };
 
@@ -126,31 +190,14 @@ const POS = () => {
       // Add new item
       setCartItems([...cartItems, { ...medication, quantity: 1 }]);
     }
+    
+    toast.success(`Added ${medication.name} to cart`);
   };
 
   const handleContinueWithWarning = () => {
     if (scannedMedication) {
       addToCart(scannedMedication);
       setShowInteractionAlert(false);
-    }
-  };
-
-  const handleSearch = () => {
-    // Simple search by medication name
-    const searchResult = medicationDatabase.find(med => 
-      med.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (med.generic && med.generic.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-    
-    if (searchResult) {
-      setScannedMedication(searchResult);
-      
-      // Check for interactions with items already in cart
-      const potentialInteractions = checkInteractions(searchResult);
-      if (potentialInteractions.length > 0) {
-        setInteractionDetails(potentialInteractions);
-        setShowInteractionAlert(true);
-      }
     }
   };
 
@@ -166,10 +213,50 @@ const POS = () => {
 
   const removeCartItem = (id: string) => {
     setCartItems(cartItems.filter(item => item.id !== id));
+    toast.info("Item removed from cart");
   };
 
-  const calculateTotal = () => {
+  const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+  
+  const calculateTax = () => {
+    return calculateSubtotal() * 0.08; // 8% tax
+  };
+  
+  const calculateTotal = () => {
+    return calculateSubtotal() + calculateTax();
+  };
+  
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      toast.error("Cart is empty");
+      return;
+    }
+    setShowReceiptDialog(true);
+  };
+  
+  const handleCompleteTransaction = () => {
+    // In a real app, this would save the transaction to a database
+    console.log("Transaction completed:", {
+      items: cartItems,
+      customer: customerInfo,
+      date: receiptDate,
+      subtotal: calculateSubtotal(),
+      tax: calculateTax(),
+      total: calculateTotal()
+    });
+    
+    toast.success("Transaction completed successfully!");
+    setShowReceiptDialog(false);
+    setCartItems([]);
+    setScannedMedication(null);
+    setCustomerInfo({
+      name: "",
+      phone: "",
+      insuranceProvider: "",
+      insuranceNumber: ""
+    });
   };
 
   return (
@@ -185,18 +272,7 @@ const POS = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <BarcodeScanner onScan={handleBarcodeScan} />
-                
-                <Separator />
-                
-                <div className="flex space-x-2">
-                  <Input 
-                    placeholder="Search medication name..." 
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                  />
-                  <Button onClick={handleSearch}>Search</Button>
-                </div>
+                <BarcodeScanner onScan={handleBarcodeScan} onSearch={handleSearch} />
               </div>
             </CardContent>
           </Card>
@@ -288,17 +364,31 @@ const POS = () => {
               
               <Separator className="my-4" />
               
-              <PaymentSummary 
-                subtotal={calculateTotal()} 
-                tax={calculateTotal() * 0.08} 
-                total={calculateTotal() * 1.08} 
-                itemCount={cartItems.length}
-                onCheckout={() => {
-                  console.log("Processing checkout...");
-                  setCartItems([]);
-                  setScannedMedication(null);
-                }}
-              />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal ({cartItems.length} items)</span>
+                    <span>${calculateSubtotal().toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Tax (8%)</span>
+                    <span>${calculateTax().toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-medium text-lg">
+                    <span>Total</span>
+                    <span>${calculateTotal().toFixed(2)}</span>
+                  </div>
+                </div>
+                
+                <Button 
+                  className="w-full pill-gradient hover:opacity-90 transition-opacity" 
+                  onClick={handleCheckout}
+                  disabled={cartItems.length === 0}
+                >
+                  <Receipt className="mr-2 h-4 w-4" />
+                  Complete Sale
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -311,6 +401,111 @@ const POS = () => {
           onCancel={() => setShowInteractionAlert(false)}
         />
       )}
+      
+      <Dialog open={showReceiptDialog} onOpenChange={setShowReceiptDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Generate Receipt</DialogTitle>
+            <DialogDescription>
+              Enter customer information and receipt details
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="name" className="text-sm font-medium">Customer Name</label>
+                <Input 
+                  id="name" 
+                  value={customerInfo.name}
+                  onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="phone" className="text-sm font-medium">Phone Number</label>
+                <Input 
+                  id="phone" 
+                  value={customerInfo.phone}
+                  onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="insurance" className="text-sm font-medium">Insurance Provider</label>
+                <Input 
+                  id="insurance" 
+                  value={customerInfo.insuranceProvider}
+                  onChange={e => setCustomerInfo({...customerInfo, insuranceProvider: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="insuranceNumber" className="text-sm font-medium">Insurance Number</label>
+                <Input 
+                  id="insuranceNumber" 
+                  value={customerInfo.insuranceNumber}
+                  onChange={e => setCustomerInfo({...customerInfo, insuranceNumber: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Receipt Date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {receiptDate ? format(receiptDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={receiptDate}
+                    onSelect={(date) => date && setReceiptDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Summary</h4>
+              <div className="bg-muted p-3 rounded-md space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Items:</span>
+                  <span>{cartItems.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Subtotal:</span>
+                  <span>${calculateSubtotal().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>VAT/Tax (8%):</span>
+                  <span>${calculateTax().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm font-medium">
+                  <span>Total:</span>
+                  <span>${calculateTotal().toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="flex space-x-2 justify-end">
+            <Button variant="outline" onClick={() => setShowReceiptDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCompleteTransaction} className="pill-gradient hover:opacity-90">
+              <Printer className="mr-2 h-4 w-4" />
+              Generate & Print
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

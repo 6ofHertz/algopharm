@@ -34,13 +34,20 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 relative">
+      {/* Background pharmacy name */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+        <h1 className="text-[120px] font-extrabold tracking-tighter">PILLPULSE</h1>
+      </div>
+      
       <div className="mb-8 flex items-center justify-center">
         <div className="pill-gradient p-2 rounded-md mr-2">
           <Barcode className="h-6 w-6 text-white" />
         </div>
         <h1 className="text-4xl font-bold text-pill-500">PillPulse</h1>
       </div>
+      
+      <p className="text-muted-foreground mb-8">Advanced Pharmacy Management System</p>
 
       <Card className="max-w-md w-full">
         <CardHeader>
@@ -50,11 +57,10 @@ const Login = () => {
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="employeeId">ID or Email</Label>
               <Input
-                id="email"
-                placeholder="Enter your email"
-                type="email"
+                id="employeeId"
+                placeholder="Enter employee ID or email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -119,6 +125,10 @@ const Login = () => {
           </CardFooter>
         </form>
       </Card>
+      
+      <footer className="mt-8 text-center text-sm text-muted-foreground">
+        <p>© 2025 PillPulse Pharmacy. All rights reserved.</p>
+      </footer>
     </div>
   );
 };

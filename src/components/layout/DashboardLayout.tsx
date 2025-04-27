@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { UserMenu } from "./UserMenu";
 import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "../theme/theme-toggle";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -80,7 +81,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     key={item.id}
                     variant={activeItem === item.id ? "secondary" : "ghost"}
                     className={`w-full justify-start mb-1 ${
-                      activeItem === item.id ? "bg-pill-200 text-pill-700" : ""
+                      activeItem === item.id ? "bg-pill-200 text-pill-700 dark:bg-pill-900 dark:text-pill-300" : ""
                     }`}
                     onClick={() => handleNavigation(item.path, item.id)}
                   >
@@ -107,7 +108,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 {navigation.find((item) => item.id === activeItem)?.name || "PillPulse"}
               </h1>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button variant="outline" size="icon">
                 <Search className="h-5 w-5" />
               </Button>

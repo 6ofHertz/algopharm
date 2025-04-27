@@ -1,6 +1,7 @@
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 
 const topItems = [
   {
@@ -42,20 +43,32 @@ const topItems = [
 
 export const TopSellingItems = () => {
   return (
-    <div className="space-y-6">
-      {topItems.map((item) => (
-        <div key={item.id} className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-sm font-medium leading-none">{item.name}</p>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <span>{item.quantity} units • {item.amount}</span>
+    <Card>
+      <CardHeader>
+        <CardTitle>Top Selling Items</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {topItems.map((item) => (
+            <div key={item.id} className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium leading-none">{item.name}</p>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <span>{item.quantity} units • {item.amount}</span>
+                </div>
+              </div>
+              <div className={`flex items-center text-sm ${item.increase > 0 ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                {item.increase > 0 ? (
+                  <ArrowUpIcon className="mr-1 h-4 w-4" />
+                ) : (
+                  <ArrowDownIcon className="mr-1 h-4 w-4" />
+                )}
+                {Math.abs(item.increase)}%
+              </div>
             </div>
-          </div>
-          <div className={`text-sm ${item.increase > 0 ? 'text-success' : 'text-danger'}`}>
-            {item.increase > 0 ? "+" : ""}{item.increase}%
-          </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </CardContent>
+    </Card>
   );
 };
