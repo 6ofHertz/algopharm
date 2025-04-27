@@ -39,7 +39,7 @@ export const AskAI = () => {
       setCurrentResponse(prev => prev + nextPart);
       setResponseParts(prev => prev.slice(1));
       setIsTyping(false);
-    }, nextPart.length * timePerChar);
+    }, Math.min(nextPart.length * timePerChar, 500)); // Cap maximum delay at 500ms
     
     return () => clearTimeout(timer);
   }, [responseParts, isTyping]);
@@ -54,76 +54,103 @@ export const AskAI = () => {
     setQuery("");
     setLoading(true);
     
-    // Simulate API call to AI service
+    // In a production environment, this would be an API call to a backend service
+    // For demonstration purposes, we use simulated responses
     setTimeout(() => {
-      let aiResponse: AIResponse;
-      
-      // Simple rule-based responses for demo purposes
-      if (userQuery.toLowerCase().includes("top 5 selling")) {
-        aiResponse = {
-          text: "Here are the top 5 selling medications this month:\n\n1. Amoxicillin 500mg - 453 units ($4,532.50)\n2. Lipitor 20mg - 367 units ($7,340.00)\n3. Metformin 1000mg - 312 units ($2,184.00)\n4. Advil 200mg - 245 units ($1,225.00)\n5. Vitamin D3 1000IU - 201 units ($1,005.00)",
-          type: "text"
-        };
-      } else if (userQuery.toLowerCase().includes("expiring")) {
-        aiResponse = {
-          text: "Currently you have 14 medications expiring in the next 30 days. The most critical ones are:\n\n1. Metformin 1000mg (Batch: MET2023-42) - Expires in 5 days, 60 units in stock\n2. Sertraline 50mg (Batch: SER2023-28) - Expires in 13 days, 45 units in stock\n3. Amoxicillin 500mg (Batch: AMX2023-56) - Expires in 18 days, 120 units in stock",
-          type: "text"
-        };
-      } else if (userQuery.toLowerCase().includes("inventory") || userQuery.toLowerCase().includes("dead")) {
-        aiResponse = {
-          text: "I've identified 8 items with zero sales in the past 60 days:\n\n1. Digoxin 125mcg - Last sale: 78 days ago\n2. Propranolol 40mg - Last sale: 82 days ago\n3. Prednisone 5mg - Last sale: 65 days ago\n4. Clonazepam 0.5mg - Last sale: 90 days ago\n5. Vitamin B Complex - Last sale: 70 days ago\n\nConsider reviewing these items for potential discounts or returns.",
-          type: "text"
-        };
-      } else if (userQuery.toLowerCase().includes("fact")) {
-        let factType = "health";
-        if (userQuery.toLowerCase().includes("science")) factType = "science";
-        if (userQuery.toLowerCase().includes("history")) factType = "history";
-        if (userQuery.toLowerCase().includes("joke")) factType = "jokes";
+      try {
+        let aiResponse: AIResponse = generateMockAIResponse(userQuery);
         
-        const facts = {
-          health: "Regular exercise can help reduce the risk of heart disease by up to 35%.",
-          science: "Aspirin was first derived from willow bark in 1897, though the medicinal properties of willow bark have been known for thousands of years.",
-          history: "The world's oldest pharmacy still in operation is in Florence, Italy. It opened in 1221 and was originally run by Dominican friars.",
-          jokes: "Why don't scientists trust atoms? Because they make up everything!"
-        };
-        
-        aiResponse = {
-          text: `${facts[factType as keyof typeof facts]}`,
-          type: "text"
-        };
-      } else if (userQuery.toLowerCase().includes("multi-location") || userQuery.toLowerCase().includes("enterprise")) {
-        aiResponse = {
-          text: "Enterprise features are available in the premium version. These include:\n\n• Multi-location inventory management\n• Centralized reporting across pharmacies\n• Corporate pricing controls\n• Advanced supply chain integrations\n• Staff scheduling across locations\n\nWould you like me to prepare a demonstration of these features?",
-          type: "text"
-        };
-      } else {
-        aiResponse = {
-          text: "I can help you analyze your pharmacy data. Try asking me things like:\n• Show me top 5 selling medications\n• List expiring stock\n• Show dead inventory\n• /fact [health|science|history|jokes]\n• Tell me about enterprise features",
-          type: "text"
-        };
-      }
-      
-      // Split the response into smaller parts for typing effect
-      const parts = aiResponse.text.split(/(?<=\.\s|\n)/g).filter(Boolean);
-      setResponseParts(parts);
-      setCurrentResponse("");
-      
-      setLoading(false);
-      
-      // After typing effect completes, add the response to the list
-      setTimeout(() => {
-        setResponses(prev => [...prev, aiResponse]);
+        // Split the response into smaller parts for typing effect
+        const parts = aiResponse.text.split(/(?<=\.\s|\n)/g).filter(Boolean);
+        setResponseParts(parts);
         setCurrentResponse("");
-      }, parts.join("").length * 10 + 500);
+        
+        setLoading(false);
+        
+        // After typing effect completes, add the full response to the list
+        setTimeout(() => {
+          setResponses(prev => [...prev, aiResponse]);
+          setCurrentResponse("");
+        }, Math.min(parts.join("").length * 10, 2000) + 500);
+      } catch (error) {
+        console.error("Error generating response:", error);
+        setLoading(false);
+        setResponses(prev => [...prev, { 
+          text: "I'm sorry, I encountered an error processing your request. Please try again.", 
+          type: "text" 
+        }]);
+      }
     }, 800);
+  };
+
+  // Generate AI responses based on query patterns
+  const generateMockAIResponse = (query: string): AIResponse => {
+    // Convert query to lowercase for easier matching
+    const lowerQuery = query.toLowerCase();
+    
+    // Handle different query types with appropriate responses
+    if (lowerQuery.includes("top") && lowerQuery.includes("sell")) {
+      return {
+        text: "Here are the top 5 selling medications this month:\n\n1. Amoxicillin 500mg - 453 units ($4,532.50)\n2. Lipitor 20mg - 367 units ($7,340.00)\n3. Metformin 1000mg - 312 units ($2,184.00)\n4. Advil 200mg - 245 units ($1,225.00)\n5. Vitamin D3 1000IU - 201 units ($1,005.00)",
+        type: "text"
+      };
+    } else if (lowerQuery.includes("expir")) {
+      return {
+        text: "Currently you have 14 medications expiring in the next 30 days. The most critical ones are:\n\n1. Metformin 1000mg (Batch: MET2023-42) - Expires in 5 days, 60 units in stock\n2. Sertraline 50mg (Batch: SER2023-28) - Expires in 13 days, 45 units in stock\n3. Amoxicillin 500mg (Batch: AMX2023-56) - Expires in 18 days, 120 units in stock",
+        type: "text"
+      };
+    } else if (lowerQuery.includes("inventory") || lowerQuery.includes("dead") || lowerQuery.includes("stock")) {
+      return {
+        text: "I've identified 8 items with zero sales in the past 60 days:\n\n1. Digoxin 125mcg - Last sale: 78 days ago\n2. Propranolol 40mg - Last sale: 82 days ago\n3. Prednisone 5mg - Last sale: 65 days ago\n4. Clonazepam 0.5mg - Last sale: 90 days ago\n5. Vitamin B Complex - Last sale: 70 days ago\n\nConsider reviewing these items for potential discounts or returns.",
+        type: "text"
+      };
+    } else if (lowerQuery.includes("enterprise") || lowerQuery.includes("multi") || lowerQuery.includes("locat")) {
+      return {
+        text: "Enterprise features are available in the premium version. These include:\n\n• Multi-location inventory management\n• Centralized reporting across pharmacies\n• Corporate pricing controls\n• Advanced supply chain integrations\n• Staff scheduling across locations\n\nWould you like me to prepare a demonstration of these features?",
+        type: "text"
+      };
+    } else if (lowerQuery.includes("sales") || lowerQuery.includes("revenue") || lowerQuery.includes("profit")) {
+      return {
+        text: "Here's a summary of your sales performance:\n\n• Today: $3,245.78 (142 transactions)\n• This week: $18,967.45 (837 transactions)\n• This month: $76,234.90 (3,254 transactions)\n\nYour revenue is up 12.3% compared to the same period last month. Top selling categories are antibiotics, cardiovascular medications, and over-the-counter pain relief.",
+        type: "text"
+      };
+    } else if (lowerQuery.includes("/fact")) {
+      let factType = "health";
+      if (lowerQuery.includes("science")) factType = "science";
+      if (lowerQuery.includes("history")) factType = "history";
+      if (lowerQuery.includes("joke")) factType = "jokes";
+      
+      const facts = {
+        health: "Regular exercise can help reduce the risk of heart disease by up to 35%.",
+        science: "Aspirin was first derived from willow bark in 1897, though the medicinal properties of willow bark have been known for thousands of years.",
+        history: "The world's oldest pharmacy still in operation is in Florence, Italy. It opened in 1221 and was originally run by Dominican friars.",
+        jokes: "Why don't scientists trust atoms? Because they make up everything!"
+      };
+      
+      return {
+        text: `${facts[factType as keyof typeof facts]}`,
+        type: "text"
+      };
+    } else if (lowerQuery.includes("help") || lowerQuery.includes("can you") || lowerQuery.includes("what")) {
+      return {
+        text: "I can help you analyze your pharmacy data. Try asking me things like:\n• Show me top 5 selling medications\n• List expiring stock\n• Show dead inventory\n• Give me a sales summary\n• /fact [health|science|history|jokes]\n• Tell me about enterprise features",
+        type: "text"
+      };
+    } else {
+      // Generic response for unrecognized queries
+      return {
+        text: "I can help you analyze your pharmacy data. Try asking me things like:\n• Show me top 5 selling medications\n• List expiring stock\n• Show dead inventory\n• Give me a sales summary\n• /fact [health|science|history|jokes]\n• Tell me about enterprise features",
+        type: "text"
+      };
+    }
   };
 
   const exampleQueries = [
     "Show me top 5 selling medications this month",
     "List all expiring stock sorted by date",
     "Show dead inventory with zero sales in 60+ days",
-    "/fact science",
-    "Tell me about enterprise features"
+    "Give me a sales summary",
+    "/fact science"
   ];
 
   const handleExampleClick = (example: string) => {
@@ -131,7 +158,7 @@ export const AskAI = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       <div className="bg-muted/40 rounded-lg p-4 h-[400px] overflow-y-auto">
         <AnimatePresence>
           {responses.length === 0 ? (
@@ -142,19 +169,19 @@ export const AskAI = () => {
               className="flex flex-col items-center justify-center h-full space-y-4"
             >
               <motion.div 
-                className="pill-gradient p-3 rounded-full"
+                className="pill-gradient p-3 rounded-full shadow-md"
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ repeat: Infinity, duration: 3 }}
               >
                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                  <Brain className="h-6 w-6 text-pill-600" />
+                  <Brain className="h-6 w-6 text-emerald-700 dark:text-emerald-600" />
                 </div>
               </motion.div>
               <h3 className="text-lg font-medium">How can I help you today?</h3>
               <p className="text-sm text-center text-muted-foreground">
                 Ask me questions about your pharmacy data, inventory, or sales
               </p>
-              <div className="grid grid-cols-1 gap-2 w-full max-w-md">
+              <div className="grid grid-cols-1 gap-2 w-full max-w-md mt-2">
                 {exampleQueries.map((example, index) => (
                   <motion.div
                     key={index}
@@ -164,7 +191,7 @@ export const AskAI = () => {
                   >
                     <Button 
                       variant="outline" 
-                      className="justify-start text-left w-full overflow-hidden hover:shadow-[0_0_8px_rgba(218,165,32,0.3)] transition-all duration-300"
+                      className="justify-start text-left w-full overflow-hidden hover:shadow-[0_0_8px_rgba(218,165,32,0.3)] dark:hover:shadow-[0_0_8px_rgba(218,165,32,0.5)] transition-all duration-300"
                       onClick={() => handleExampleClick(example)}
                     >
                       {example}
@@ -187,7 +214,7 @@ export const AskAI = () => {
                     className={cn(
                       "max-w-[80%] p-3 rounded-lg shadow-sm", 
                       index % 2 === 0 
-                        ? 'bg-pill-500 text-white rounded-br-none' 
+                        ? 'bg-emerald-600 dark:bg-emerald-700 text-white rounded-br-none' 
                         : 'bg-accent rounded-bl-none dark:bg-accent/60'
                     )}
                   >
@@ -238,13 +265,13 @@ export const AskAI = () => {
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Textarea 
           placeholder="Ask about your pharmacy data..." 
-          className="min-h-[60px] transition-all duration-200 focus:border-pill-400 focus:ring-pill-400 dark:focus:border-pill-600 dark:focus:ring-pill-600"
+          className="min-h-[60px] transition-all duration-200 focus:border-emerald-400 focus:ring-emerald-400 dark:focus:border-emerald-600 dark:focus:ring-emerald-600 resize-none"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <Button 
           type="submit" 
-          className="pill-gradient hover:opacity-90 transition-opacity relative overflow-hidden group" 
+          className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 dark:from-emerald-700 dark:to-emerald-800 dark:hover:from-emerald-600 dark:hover:to-emerald-700 hover:opacity-90 transition-opacity relative overflow-hidden group" 
           disabled={loading || !query.trim()}
         >
           {loading ? (
