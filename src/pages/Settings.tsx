@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useTheme } from "@/components/theme/theme-provider";
+import { Badge } from "@/components/ui/badge";
 
 const SettingsPage = () => {
   const { theme } = useTheme();
@@ -28,6 +28,7 @@ const SettingsPage = () => {
           <TabsTrigger value="pharmacy">Pharmacy</TabsTrigger>
           <TabsTrigger value="users">Users & Access</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="logs">Audit Logs</TabsTrigger>
         </TabsList>
         
         <TabsContent value="general" className="space-y-4">
@@ -229,7 +230,7 @@ const SettingsPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="border rounded-md p-4">
+                <div className="border rounded-md p-4 bg-card hover:shadow-md transition-all duration-200 hover:border-pill-300">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Administrator</h4>
@@ -243,11 +244,13 @@ const SettingsPage = () => {
                       <li>Can add/remove users and set permissions</li>
                       <li>Full financial and reporting access</li>
                       <li>Can modify system settings</li>
+                      <li>Track pharmacist and cashier activities</li>
+                      <li>View audit logs and sales records</li>
                     </ul>
                   </div>
                 </div>
                 
-                <div className="border rounded-md p-4">
+                <div className="border rounded-md p-4 bg-card hover:shadow-md transition-all duration-200 hover:border-pill-300">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Pharmacist</h4>
@@ -261,11 +264,13 @@ const SettingsPage = () => {
                       <li>Can override medication interactions</li>
                       <li>Limited financial reporting</li>
                       <li>Cannot modify system settings</li>
+                      <li>Clock in/out tracking</li>
+                      <li>Personal sales history available</li>
                     </ul>
                   </div>
                 </div>
                 
-                <div className="border rounded-md p-4">
+                <div className="border rounded-md p-4 bg-card hover:shadow-md transition-all duration-200 hover:border-pill-300">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Cashier</h4>
@@ -279,12 +284,64 @@ const SettingsPage = () => {
                       <li>Limited inventory browsing</li>
                       <li>No financial reporting access</li>
                       <li>No system modifications</li>
+                      <li>Clock in/out tracking</li>
+                      <li>Personal sales history available</li>
                     </ul>
                   </div>
                 </div>
               </div>
               
               <Button className="mt-6">Manage Users</Button>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>User Activity Tracking</CardTitle>
+              <CardDescription>
+                Monitor employee login times and sales performance
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="border rounded-md p-4">
+                  <h3 className="font-medium mb-2">Recent Login Activity</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium">Jane Doe (Pharmacist)</span>
+                      <span className="text-muted-foreground">Today, 9:15 AM - Present</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium">John Smith (Cashier)</span>
+                      <span className="text-muted-foreground">Today, 8:30 AM - Present</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium">Emily Chen (Cashier)</span>
+                      <span className="text-muted-foreground">Yesterday, 9:00 AM - 5:30 PM</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="border rounded-md p-4">
+                  <h3 className="font-medium mb-2">Sales Performance (This Week)</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium">Jane Doe (Pharmacist)</span>
+                      <span className="text-muted-foreground">$3,245.75 (42 transactions)</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium">John Smith (Cashier)</span>
+                      <span className="text-muted-foreground">$2,841.30 (37 transactions)</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium">Emily Chen (Cashier)</span>
+                      <span className="text-muted-foreground">$3,105.50 (45 transactions)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <Button variant="outline" className="mt-6">View Detailed Reports</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -341,6 +398,80 @@ const SettingsPage = () => {
               </div>
               
               <Button className="mt-6">Update Preferences</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="logs" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>System Audit Logs</CardTitle>
+              <CardDescription>
+                Track system activities and changes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-1">
+                    <Input placeholder="Search logs..." />
+                  </div>
+                  <Button variant="outline">Filter</Button>
+                  <Button variant="outline">Export</Button>
+                </div>
+                
+                <div className="border rounded-md">
+                  <div className="p-3 border-b flex text-sm font-medium text-muted-foreground">
+                    <div className="w-32">Time</div>
+                    <div className="w-32">User</div>
+                    <div className="w-40">Action</div>
+                    <div className="flex-1">Details</div>
+                  </div>
+                  
+                  <div className="p-3 border-b flex text-sm hover:bg-accent/50">
+                    <div className="w-32 text-muted-foreground">Today, 10:23 AM</div>
+                    <div className="w-32">Admin</div>
+                    <div className="w-40">User Created</div>
+                    <div className="flex-1">Created new cashier account: "Michael Johnson"</div>
+                  </div>
+                  
+                  <div className="p-3 border-b flex text-sm hover:bg-accent/50">
+                    <div className="w-32 text-muted-foreground">Today, 09:45 AM</div>
+                    <div className="w-32">Jane Doe</div>
+                    <div className="w-40">Prescription Override</div>
+                    <div className="flex-1">Override on medication interaction: Lisinopril + Potassium</div>
+                  </div>
+                  
+                  <div className="p-3 border-b flex text-sm hover:bg-accent/50">
+                    <div className="w-32 text-muted-foreground">Today, 09:30 AM</div>
+                    <div className="w-32">System</div>
+                    <div className="w-40">Inventory Alert</div>
+                    <div className="flex-1">Low stock for item: Amoxicillin 500mg (5 units remaining)</div>
+                  </div>
+                  
+                  <div className="p-3 border-b flex text-sm hover:bg-accent/50">
+                    <div className="w-32 text-muted-foreground">Yesterday, 04:15 PM</div>
+                    <div className="w-32">Admin</div>
+                    <div className="w-40">Settings Changed</div>
+                    <div className="flex-1">Updated tax rate from 7.5% to 8%</div>
+                  </div>
+                  
+                  <div className="p-3 border-b flex text-sm hover:bg-accent/50">
+                    <div className="w-32 text-muted-foreground">Yesterday, 03:20 PM</div>
+                    <div className="w-32">John Smith</div>
+                    <div className="w-40">Refund Processed</div>
+                    <div className="flex-1">Refund of $45.99 for transaction #7842</div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-muted-foreground">Showing 5 of 235 logs</div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" disabled>Previous</Button>
+                    <Button variant="outline" size="sm">Next</Button>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

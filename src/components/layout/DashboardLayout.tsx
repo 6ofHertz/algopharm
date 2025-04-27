@@ -1,14 +1,16 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader } from "@/components/ui/sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Barcode, Calendar, LayoutDashboard, LogOut, Search, Settings, User } from "lucide-react";
+import { Barcode, Calendar, LayoutDashboard, LogOut, Search, Settings, User, Clock } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { UserMenu } from "./UserMenu";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "../theme/theme-toggle";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -17,11 +19,22 @@ interface DashboardLayoutProps {
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("dashboard");
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [user, setUser] = useState({
     name: "Dr. Sarah Johnson",
     role: "Pharmacist",
     initials: "SJ",
+    id: "PHR-001",
   });
+
+  // Update clock every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const navigation = [
     {
@@ -61,6 +74,11 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     navigate(path);
   };
 
+  const handleSearch = () => {
+    console.log("Search functionality to be implemented");
+    // In real application, this would open a search modal
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -80,9 +98,13 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Button
                     key={item.id}
                     variant={activeItem === item.id ? "secondary" : "ghost"}
-                    className={`w-full justify-start mb-1 ${
-                      activeItem === item.id ? "bg-pill-200 text-pill-700 dark:bg-pill-900 dark:text-pill-300" : ""
-                    }`}
+                    className={cn(
+                      "w-full justify-start mb-1 transition-all duration-300",
+                      activeItem === item.id 
+                        ? "bg-pill-200 text-pill-700 dark:bg-pill-900 dark:text-pill-300" 
+                        : "",
+                      "hover:shadow-[0_0_8px_rgba(218,165,32,0.3)]"
+                    )}
                     onClick={() => handleNavigation(item.path, item.id)}
                   >
                     <item.icon className="mr-2 h-5 w-5" />
@@ -108,14 +130,34 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 {navigation.find((item) => item.id === activeItem)?.name || "PillPulse"}
               </h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 mr-4">
+              <div className="flex items-center border rounded-full px-3 py-1 bg-card text-sm">
+                <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                <span className="text-xs font-medium">
+                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
               <ThemeToggle />
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" onClick={handleSearch}>
                 <Search className="h-5 w-5" />
+                <span className="sr-only">Search</span>
               </Button>
-              <Avatar>
-                <AvatarFallback>{user.initials}</AvatarFallback>
-              </Avatar>
+              <div className="flex items-center gap-2">
+                <div className="text-right hidden sm:block">
+                  <div className="text-sm font-medium">{user.name}</div>
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <span className="mr-2">{user.id}</span>
+                    <Badge variant="outline" className="h-5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                      {user.role}
+                    </Badge>
+                  </div>
+                </div>
+                <Avatar>
+                  <AvatarFallback>{user.initials}</AvatarFallback>
+                </Avatar>
+              </div>
             </div>
           </header>
           <main className="flex-1 overflow-y-auto p-6">{children}</main>

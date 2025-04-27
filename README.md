@@ -1,73 +1,150 @@
-# Welcome to your Lovable project
 
-## Project info
+# PillPulse - Modern Pharmacy POS System
 
-**URL**: https://lovable.dev/projects/40ebce83-9b82-4226-a425-8da4e049a5ff
+![PillPulse](https://github.com/yourgithub/pillpulse/assets/preview.png)
 
-## How can I edit this code?
+## Overview
 
-There are several ways of editing your application.
+PillPulse is a comprehensive, modern Point of Sale (POS) system specifically designed for pharmacies. It combines powerful inventory management, prescription handling, and sales processing with an intuitive user interface to streamline pharmacy operations.
 
-**Use Lovable**
+## Key Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/40ebce83-9b82-4226-a425-8da4e049a5ff) and start prompting.
+### 🏥 Core Pharmacy Features
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Barcode-Driven Workflow**:
+  - Scan medications to auto-fill product information
+  - Display generic/brand names, batch numbers, and expiry dates
+  - Automatic expiry alerts for items with less than 30 days shelf life
+  - Drug interaction detection and warnings
 
-**Use your preferred IDE**
+- **AI-Powered Analytics Dashboard**:
+  - Real-time inventory and sales analytics
+  - Natural language query system for data insights
+  - Exportable reports in multiple formats (CSV, PDF)
+  - Visual data representations for quick analysis
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Employee Hierarchy System**:
+  - Three-tier access control (Cashier, Pharmacist, Administrator)
+  - Role-specific interfaces and permissions
+  - Activity tracking and audit logging
+  - Clock in/out system with performance metrics
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 🎮 Additional Features
 
-Follow these steps:
+- **Health Fact Generator**:
+  - Access health, science, history facts, or even jokes
+  - Educational content for staff and customers
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Shift Achievements**:
+  - Gamified work experience with achievement badges
+  - Performance-based recognition system
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **Dark Mode & Theme Options**:
+  - Customizable UI with dark and light themes
+  - Olive green accent colors with golden hover effects
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Technical Architecture
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Frontend
+- React with TypeScript
+- Vite for fast development and optimized builds
+- ShadCN UI components for consistent design
+- Tailwind CSS for styling
+- React Router for navigation
+- React Query for efficient data fetching
+
+### Backend (Suggested Implementation)
+- Node.js with Express.js REST API
+- PostgreSQL database with row-level security
+- Supabase for authentication and database management
+- Redis for caching and performance optimization
+
+### AI & Machine Learning
+- Integration with OpenAI GPT-4 for natural language queries
+- Mistral 7B for offline, local fact generation
+- Machine learning for inventory optimization suggestions
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v18.0.0 or higher)
+- npm or yarn package manager
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourgithub/pillpulse.git
+
+# Navigate to the project directory
+cd pillpulse
+
+# Install dependencies
+npm install
+# or
+yarn install
+
+# Start the development server
 npm run dev
+# or
+yarn dev
 ```
 
-**Edit a file directly in GitHub**
+### Configuration
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Create a `.env` file based on `.env.example`
+2. Configure your database connection settings
+3. Set up your API keys for AI services (if using)
 
-**Use GitHub Codespaces**
+## User Roles & Permissions
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Cashier
+- Process sales transactions
+- View basic inventory information
+- Clock in/out functionality
+- Access personal sales history
 
-## What technologies are used for this project?
+### Pharmacist
+- All Cashier permissions
+- Override medication interactions
+- Approve controlled substance sales
+- View limited financial reports
+- Full medication management
 
-This project is built with:
+### Administrator
+- All Pharmacist permissions
+- Add/remove users
+- Change system settings
+- View complete financial reports
+- Track employee activities
+- Access audit logs
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Deployment
 
-## How can I deploy this project?
+PillPulse is designed to be deployed in various environments:
 
-Simply open [Lovable](https://lovable.dev/projects/40ebce83-9b82-4226-a425-8da4e049a5ff) and click on Share -> Publish.
+- **Cloud Deployment**: AWS, Google Cloud, or Azure
+- **On-Premises**: Docker containers for easy setup
+- **Offline Mode**: PWA capabilities for use without internet connection
 
-## Can I connect a custom domain to my Lovable project?
+## Contributing
 
-Yes, you can!
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## License
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- ShadCN UI for the component library
+- Tailwind CSS for the styling framework
+- The open-source community for inspiration and tools
+
+---
+
+© 2025 PillPulse. All Rights Reserved.
