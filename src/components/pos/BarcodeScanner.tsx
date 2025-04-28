@@ -96,7 +96,7 @@ export const BarcodeScanner = ({ onScan, onSearch }: BarcodeScannerProps) => {
           onKeyDown={handleKeyDown}
           className="flex-1"
         />
-        <Button onClick={handleSearch} variant="outline" className="flex-shrink-0 hover-glow">
+        <Button onClick={handleSearch} variant="outline" className="flex-shrink-0 hover:blue-glow">
           <Search className="h-4 w-4 mr-2" />
           Search
         </Button>

@@ -1,86 +1,41 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from "react";
+import { HashRouter, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
+import "./index.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { Login } from "@/components/auth/login";
+import { Index } from "@/components/index";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
 
-import DashboardLayout from "./components/layout/DashboardLayout";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import POS from "./pages/POS";
 import Inventory from "./pages/Inventory";
-import SettingsPage from "./pages/Settings";
-import CalendarPage from "./pages/Calendar";
+import Calendar from "./pages/Calendar";
+import POS from "./pages/POS";
+import Settings from "./pages/Settings";
+import Accounting from "./pages/Accounting";
+import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="pharmacy-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            
-            <Route path="/" element={<Login />} />
-            
-            <Route
-              path="/dashboard"
-              element={
-                <DashboardLayout>
-                  <Dashboard />
-                </DashboardLayout>
-              }
-            />
-            
-            <Route
-              path="/pos"
-              element={
-                <DashboardLayout>
-                  <POS />
-                </DashboardLayout>
-              }
-            />
-            
-            <Route
-              path="/inventory"
-              element={
-                <DashboardLayout>
-                  <Inventory />
-                </DashboardLayout>
-              }
-            />
-            
-            <Route
-              path="/settings"
-              element={
-                <DashboardLayout>
-                  <SettingsPage />
-                </DashboardLayout>
-              }
-            />
-            
-            <Route
-              path="/calendar"
-              element={
-                <DashboardLayout>
-                  <CalendarPage />
-                </DashboardLayout>
-              }
-            />
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+function App() {
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="pillpulse-theme">
+      <Toaster />
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/inventory" element={<Inventory />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/pos" element={<POS />} />
+            <Route path="/accounting" element={<Accounting />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </HashRouter>
     </ThemeProvider>
-  </QueryClientProvider>
-);
+  );
+}
 
 export default App;
