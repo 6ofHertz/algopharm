@@ -1,11 +1,12 @@
+
 import React from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import "./index.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
-import { Login } from "@/components/auth/login";
-import { Index } from "@/components/index";
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { Login } from "@/components/auth/Login";
+import { Index } from "@/components/Index";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";

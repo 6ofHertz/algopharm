@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader } from "@/components/ui/sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Outlet } from "react-router-dom";
+import { Sidebar, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Barcode, Calendar, LayoutDashboard, LogOut, Search, Settings, User, Clock } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -11,15 +11,13 @@ import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "../theme/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-}
-
-export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+export const DashboardLayout = () => {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("dashboard");
   const [currentTime, setCurrentTime] = useState(new Date());
+  const isMobile = useIsMobile();
   const [user, setUser] = useState({
     name: "Dr. Sarah Johnson",
     role: "Pharmacist",
@@ -83,16 +81,16 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden bg-background">
         <Sidebar className="border-r">
-          <SidebarHeader className="pt-6 pb-2">
+          <div className="pt-6 pb-2">
             <div className="flex items-center px-4">
               <div className="pill-gradient p-1.5 rounded-md mr-2">
                 <Barcode className="h-5 w-5 text-white" />
               </div>
               <h1 className="text-xl font-bold text-pill-500">PillPulse</h1>
             </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarGroup>
+          </div>
+          <div className="flex-1 overflow-y-auto py-2">
+            <div className="space-y-1">
               <div className="px-3 py-2">
                 {navigation.map((item) => (
                   <Button
@@ -112,14 +110,14 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   </Button>
                 ))}
               </div>
-            </SidebarGroup>
-          </SidebarContent>
-          <SidebarFooter>
+            </div>
+          </div>
+          <div>
             <Separator className="my-4" />
             <div className="px-3 pb-4">
               <UserMenu user={user} />
             </div>
-          </SidebarFooter>
+          </div>
         </Sidebar>
 
         <div className="flex flex-col flex-1 overflow-hidden">
@@ -160,7 +158,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </div>
             </div>
           </header>
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+          <main className="flex-1 overflow-y-auto p-6">
+            <Outlet />
+          </main>
         </div>
       </div>
     </SidebarProvider>
