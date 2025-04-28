@@ -18,7 +18,7 @@ export function ThemeToggle() {
         "transition-all duration-300 hover:shadow-lg relative overflow-hidden",
         theme === "dark" 
           ? "hover:shadow-[0_0_10px_rgba(218,165,32,0.5)]" 
-          : "hover:shadow-[0_0_10px_rgba(139,92,246,0.5)]"
+          : "hover:shadow-[0_0_10px_rgba(30,144,255,0.5)]"
       )}
     >
       <motion.div
@@ -44,7 +44,7 @@ export function ThemeToggle() {
             exit={{ rotate: -45, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Moon className="h-5 w-5 text-indigo-400" />
+            <Moon className="h-5 w-5 text-blue-600" />
           </motion.div>
         )}
       </motion.div>

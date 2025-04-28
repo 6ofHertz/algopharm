@@ -174,7 +174,7 @@ export const AskAI = () => {
                 transition={{ repeat: Infinity, duration: 3 }}
               >
                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                  <Brain className="h-6 w-6 text-emerald-700 dark:text-emerald-600" />
+                  <Brain className="h-6 w-6 text-primary" />
                 </div>
               </motion.div>
               <h3 className="text-lg font-medium">How can I help you today?</h3>
@@ -191,7 +191,7 @@ export const AskAI = () => {
                   >
                     <Button 
                       variant="outline" 
-                      className="justify-start text-left w-full overflow-hidden hover:shadow-[0_0_8px_rgba(218,165,32,0.3)] dark:hover:shadow-[0_0_8px_rgba(218,165,32,0.5)] transition-all duration-300"
+                      className="justify-start text-left w-full overflow-hidden hover-glow transition-all duration-300"
                       onClick={() => handleExampleClick(example)}
                     >
                       {example}
@@ -214,14 +214,14 @@ export const AskAI = () => {
                     className={cn(
                       "max-w-[80%] p-3 rounded-lg shadow-sm", 
                       index % 2 === 0 
-                        ? 'bg-emerald-600 dark:bg-emerald-700 text-white rounded-br-none' 
-                        : 'bg-accent rounded-bl-none dark:bg-accent/60'
+                        ? 'bg-primary text-white rounded-br-none' 
+                        : 'bg-accent/20 rounded-bl-none dark:bg-accent/60'
                     )}
                   >
                     <p className="text-sm whitespace-pre-line">{response.text}</p>
                     {index % 2 !== 0 && (
                       <div className="flex justify-end mt-1">
-                        <Sparkles className="h-4 w-4 text-amber-500" />
+                        <Sparkles className="h-4 w-4 text-primary" />
                       </div>
                     )}
                   </div>
@@ -234,12 +234,12 @@ export const AskAI = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <div className="max-w-[80%] p-3 rounded-lg bg-accent rounded-bl-none dark:bg-accent/60">
+                  <div className="max-w-[80%] p-3 rounded-lg bg-accent/20 rounded-bl-none dark:bg-accent/60">
                     <p className="text-sm whitespace-pre-line">{currentResponse}</p>
                     <div className="flex h-5 items-center space-x-1">
-                      <div className="animate-bounce h-1.5 w-1.5 rounded-full bg-muted-foreground"></div>
-                      <div className="animate-bounce h-1.5 w-1.5 rounded-full bg-muted-foreground" style={{ animationDelay: '0.2s' }}></div>
-                      <div className="animate-bounce h-1.5 w-1.5 rounded-full bg-muted-foreground" style={{ animationDelay: '0.4s' }}></div>
+                      <div className="animate-bounce h-1.5 w-1.5 rounded-full bg-primary/60"></div>
+                      <div className="animate-bounce h-1.5 w-1.5 rounded-full bg-primary/60" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="animate-bounce h-1.5 w-1.5 rounded-full bg-primary/60" style={{ animationDelay: '0.4s' }}></div>
                     </div>
                   </div>
                 </motion.div>
@@ -251,8 +251,8 @@ export const AskAI = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <div className="max-w-[80%] p-3 rounded-lg bg-accent rounded-bl-none dark:bg-accent/60">
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                  <div className="max-w-[80%] p-3 rounded-lg bg-accent/20 rounded-bl-none dark:bg-accent/60">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   </div>
                 </motion.div>
               )}
@@ -265,13 +265,13 @@ export const AskAI = () => {
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Textarea 
           placeholder="Ask about your pharmacy data..." 
-          className="min-h-[60px] transition-all duration-200 focus:border-emerald-400 focus:ring-emerald-400 dark:focus:border-emerald-600 dark:focus:ring-emerald-600 resize-none"
+          className="min-h-[60px] transition-all duration-200 focus:border-primary focus:ring-primary resize-none"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <Button 
           type="submit" 
-          className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 dark:from-emerald-700 dark:to-emerald-800 dark:hover:from-emerald-600 dark:hover:to-emerald-700 hover:opacity-90 transition-opacity relative overflow-hidden group" 
+          className="pill-gradient hover:opacity-90 transition-opacity relative overflow-hidden group" 
           disabled={loading || !query.trim()}
         >
           {loading ? (

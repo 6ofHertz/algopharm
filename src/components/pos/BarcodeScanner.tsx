@@ -61,13 +61,13 @@ export const BarcodeScanner = ({ onScan, onSearch }: BarcodeScannerProps) => {
       <audio ref={audioRef} src="https://soundbible.com/mp3/Scanner%20Beep-SoundBible.com-519765062.mp3" preload="auto" />
       
       <div 
-        className={`border-2 ${isScanning ? 'border-pill-500 animate-pulse-glow' : 'border-muted'} rounded-lg h-[200px] relative flex items-center justify-center overflow-hidden bg-muted/30`}
+        className={`border-2 ${isScanning ? 'border-primary animate-pulse' : 'border-muted'} rounded-lg h-[200px] relative flex items-center justify-center overflow-hidden bg-muted/30`}
       >
         {isScanning && <div className="scanner-line"></div>}
         
         {isScanning ? (
           <div className="text-center">
-            <div className="text-3xl font-bold text-pill-500">{countdown}</div>
+            <div className="text-3xl font-bold text-primary">{countdown}</div>
             <p className="text-sm text-muted-foreground mt-2">Scanning...</p>
           </div>
         ) : (
@@ -96,7 +96,7 @@ export const BarcodeScanner = ({ onScan, onSearch }: BarcodeScannerProps) => {
           onKeyDown={handleKeyDown}
           className="flex-1"
         />
-        <Button onClick={handleSearch} variant="outline" className="flex-shrink-0">
+        <Button onClick={handleSearch} variant="outline" className="flex-shrink-0 hover-glow">
           <Search className="h-4 w-4 mr-2" />
           Search
         </Button>

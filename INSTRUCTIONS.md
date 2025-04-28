@@ -162,712 +162,1468 @@ PillPulse is a comprehensive, modern Point of Sale (POS) system specifically des
 - Role templates (pre-configured permissions)
 - Labor cost analytics
 
-## Backend Implementation Guide
+## Comprehensive Backend Setup Guide for 50,000+ Item Pharmaceutical System
 
-### Setting Up the Backend
+### 1. Database Setup (PostgreSQL)
 
-To handle 50,000+ inventory items efficiently, follow these implementation steps:
-
-1. **Database Setup**:
-   ```bash
-   # Create PostgreSQL database
-   CREATE DATABASE pillpulse;
-   
-   # Connect to database
-   \c pillpulse
-   
-   # Create essential tables (examples below)
-   CREATE TABLE users (...);
-   CREATE TABLE medications (...);
-   CREATE TABLE inventory (...);
-   CREATE TABLE transactions (...);
-   ```
-
-2. **Node.js + Express Backend**:
-   ```javascript
-   // Example Express setup
-   const express = require('express');
-   const cors = require('cors');
-   const app = express();
-   
-   app.use(cors());
-   app.use(express.json());
-   
-   // API Routes
-   app.use('/api/auth', authRoutes);
-   app.use('/api/inventory', inventoryRoutes);
-   app.use('/api/sales', salesRoutes);
-   
-   const PORT = process.env.PORT || 5000;
-   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-   ```
-
-3. **Database Connection**:
-   ```javascript
-   // Example using node-postgres
-   const { Pool } = require('pg');
-   
-   const pool = new Pool({
-     user: 'postgres',
-     host: 'localhost',
-     database: 'pillpulse',
-     password: 'your_password',
-     port: 5432,
-   });
-   
-   module.exports = {
-     query: (text, params) => pool.query(text, params),
-   };
-   ```
-
-### API Endpoints Implementation
-
-For a system handling 50,000+ inventory items, implement these essential endpoints:
-
-#### Authentication API
-```javascript
-// src/routes/authRoutes.js
-const express = require('express');
-const router = express.Router();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const db = require('../db');
-const auth = require('../middleware/auth');
-
-// Login endpoint
-router.post('/login', async (req, res) => {
-  const { employeeId, password } = req.body;
-  
-  try {
-    const result = await db.query(
-      'SELECT * FROM users WHERE employee_id = $1',
-      [employeeId]
-    );
-    
-    if (result.rows.length === 0) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    
-    const user = result.rows[0];
-    const isMatch = await bcrypt.compare(password, user.password);
-    
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '8h' }
-    );
-    
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        employeeId: user.employee_id,
-        name: user.name,
-        role: user.role
-      }
-    });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Get current user info
-router.get('/me', auth, async (req, res) => {
-  try {
-    const result = await db.query(
-      'SELECT id, employee_id, name, role FROM users WHERE id = $1',
-      [req.user.id]
-    );
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-module.exports = router;
+#### Installation
+```bash
+# Linux/macOS:
+sudo apt-get install postgresql postgresql-contrib  # Debian/Ubuntu
+brew install postgresql                            # macOS
+# Windows: Download from PostgreSQL Official Site.
 ```
 
-#### Inventory API (Optimized for 50,000+ items)
-```javascript
-// src/routes/inventoryRoutes.js
-const express = require('express');
-const router = express.Router();
-const db = require('../db');
-const auth = require('../middleware/auth');
-const roleCheck = require('../middleware/roleCheck');
-
-// Get paginated inventory with filters
-router.get('/', auth, async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const offset = (page - 1) * limit;
-    const search = req.query.search || '';
-    const category = req.query.category || '';
-    const expiryFilter = req.query.expiry || '';
-    
-    // Build query with filters
-    let query = 'SELECT * FROM medications WHERE 1=1';
-    const queryParams = [];
-    let paramIndex = 1;
-    
-    if (search) {
-      query += ` AND (name ILIKE $${paramIndex} OR generic_name ILIKE $${paramIndex} OR barcode = $${paramIndex+1})`;
-      queryParams.push(`%${search}%`);
-      queryParams.push(search);
-      paramIndex += 2;
-    }
-    
-    if (category) {
-      query += ` AND category = $${paramIndex}`;
-      queryParams.push(category);
-      paramIndex++;
-    }
-    
-    if (expiryFilter === 'expiring') {
-      query += ` AND expiry_date < CURRENT_DATE + INTERVAL '30 days'`;
-    }
-    
-    // Add pagination
-    const countQuery = query.replace('SELECT *', 'SELECT COUNT(*)');
-    const countResult = await db.query(countQuery, queryParams);
-    const total = parseInt(countResult.rows[0].count);
-    
-    // Add sorting and pagination to main query
-    query += ` ORDER BY ${req.query.sort || 'name'} ${req.query.order || 'ASC'}`;
-    query += ` LIMIT $${paramIndex} OFFSET $${paramIndex+1}`;
-    queryParams.push(limit);
-    queryParams.push(offset);
-    
-    const result = await db.query(query, queryParams);
-    
-    res.json({
-      data: result.rows,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Get medication by barcode
-router.get('/barcode/:code', auth, async (req, res) => {
-  try {
-    const result = await db.query(
-      'SELECT * FROM medications WHERE barcode = $1',
-      [req.params.code]
-    );
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Medication not found' });
-    }
-    
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Additional endpoints for inventory management
-// Add medication (admin/pharmacist only)
-router.post('/', auth, roleCheck(['admin', 'pharmacist']), async (req, res) => {
-  // Implementation details
-});
-
-// Update medication (admin/pharmacist only)
-router.put('/:id', auth, roleCheck(['admin', 'pharmacist']), async (req, res) => {
-  // Implementation details
-});
-
-module.exports = router;
+#### Configuration
+```bash
+sudo -u postgres psql  # Access PostgreSQL shell
+CREATE DATABASE algopharm;
+CREATE USER pharmadmin WITH PASSWORD 'securepassword';
+GRANT ALL PRIVILEGES ON DATABASE algopharm TO pharmadmin;
 ```
 
-#### Transaction API
-```javascript
-// src/routes/salesRoutes.js
-const express = require('express');
-const router = express.Router();
-const db = require('../db');
-const auth = require('../middleware/auth');
-const roleCheck = require('../middleware/roleCheck');
-
-// Process new transaction
-router.post('/', auth, async (req, res) => {
-  const client = await db.pool.connect();
-  
-  try {
-    await client.query('BEGIN');
-    
-    // Insert transaction record
-    const transactionResult = await client.query(
-      `INSERT INTO transactions 
-       (cashier_id, pharmacist_id, customer_id, total, tax, discount, payment_method) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-      [
-        req.user.id, 
-        req.body.pharmacistId || null, 
-        req.body.customerId || null,
-        req.body.total,
-        req.body.tax,
-        req.body.discount || 0,
-        req.body.paymentMethod
-      ]
-    );
-    
-    const transactionId = transactionResult.rows[0].id;
-    
-    // Insert transaction items
-    for (const item of req.body.items) {
-      await client.query(
-        `INSERT INTO transaction_items 
-         (transaction_id, medication_id, quantity, price, subtotal) 
-         VALUES ($1, $2, $3, $4, $5)`,
-        [
-          transactionId,
-          item.medicationId,
-          item.quantity,
-          item.price,
-          item.subtotal
-        ]
-      );
-      
-      // Update inventory
-      await client.query(
-        `UPDATE medications 
-         SET quantity = quantity - $1
-         WHERE id = $2`,
-        [item.quantity, item.medicationId]
-      );
-    }
-    
-    await client.query('COMMIT');
-    
-    res.status(201).json({ 
-      id: transactionId,
-      message: 'Transaction processed successfully' 
-    });
-  } catch (err) {
-    await client.query('ROLLBACK');
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  } finally {
-    client.release();
-  }
-});
-
-// Get transactions with pagination and filtering
-router.get('/', auth, roleCheck(['admin', 'pharmacist']), async (req, res) => {
-  // Implementation with pagination and filtering
-});
-
-module.exports = router;
-```
-
-### Database Schema for 50,000+ Items
-
-For optimal performance with large inventories, implement these optimized schemas:
-
+#### Optimized Schema Design for 50,000+ Items
 ```sql
--- Users Table
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  employee_id VARCHAR(20) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  name VARCHAR(100) NOT NULL,
-  role VARCHAR(20) NOT NULL CHECK (role IN ('cashier', 'pharmacist', 'admin')),
-  active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  last_login TIMESTAMP
+-- Drugs Table (Core)
+CREATE TABLE drugs (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    barcode VARCHAR(50) UNIQUE,       -- For quick scans
+    generic_name VARCHAR(100),
+    dosage_form VARCHAR(50),
+    stock_quantity INT DEFAULT 0,
+    min_stock_threshold INT,          -- Alerts when low
+    expiry_date DATE,
+    batch_number VARCHAR(50),
+    image_url TEXT,                   -- Store drug image paths
+    location_id INT,                  -- For multi-location support
+    category VARCHAR(50),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_users_employee_id ON users(employee_id);
-CREATE INDEX idx_users_role ON users(role);
-
--- Medications Table (Optimized for 50,000+ items)
-CREATE TABLE medications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(255) NOT NULL,
-  generic_name VARCHAR(255),
-  barcode VARCHAR(100) UNIQUE,
-  batch_number VARCHAR(100),
-  expiry_date DATE NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  cost DECIMAL(10, 2) NOT NULL,
-  quantity INTEGER NOT NULL DEFAULT 0,
-  category VARCHAR(100),
-  description TEXT,
-  interactions TEXT[],
-  requires_prescription BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  location_id UUID REFERENCES locations(id)
-);
-
--- Indexes for fast querying of large inventory
-CREATE INDEX idx_medications_name ON medications(name);
-CREATE INDEX idx_medications_generic_name ON medications(generic_name);
-CREATE INDEX idx_medications_barcode ON medications(barcode);
-CREATE INDEX idx_medications_category ON medications(category);
-CREATE INDEX idx_medications_expiry_date ON medications(expiry_date);
-CREATE INDEX idx_medications_location ON medications(location_id);
-
--- Locations Table (for multi-location support)
+-- Locations Table (Multi-location support)
 CREATE TABLE locations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(255) NOT NULL,
-  address TEXT,
-  phone VARCHAR(20),
-  manager_id UUID REFERENCES users(id),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    address TEXT,
+    phone VARCHAR(20),
+    manager_id INT,                   -- References users.id
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Transactions Table
-CREATE TABLE transactions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  cashier_id UUID NOT NULL REFERENCES users(id),
-  pharmacist_id UUID REFERENCES users(id),
-  customer_id UUID REFERENCES customers(id),
-  total DECIMAL(10, 2) NOT NULL,
-  tax DECIMAL(10, 2) NOT NULL,
-  discount DECIMAL(10, 2) DEFAULT 0,
-  payment_method VARCHAR(50) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  status VARCHAR(20) DEFAULT 'completed' CHECK (status IN ('completed', 'voided', 'refunded')),
-  location_id UUID REFERENCES locations(id)
+-- Users Table (Staff/Access Control)
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,   -- Store hashed passwords
+    full_name VARCHAR(100),
+    role VARCHAR(20) NOT NULL,        -- 'cashier', 'pharmacist', 'admin'
+    location_id INT,                  -- Primary location
+    active BOOLEAN DEFAULT TRUE,
+    last_login TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_transactions_cashier ON transactions(cashier_id);
-CREATE INDEX idx_transactions_created_at ON transactions(created_at);
-CREATE INDEX idx_transactions_status ON transactions(status);
-CREATE INDEX idx_transactions_location ON transactions(location_id);
-
--- Transaction Items Table
-CREATE TABLE transaction_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  transaction_id UUID NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
-  medication_id UUID NOT NULL REFERENCES medications(id),
-  quantity INTEGER NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  subtotal DECIMAL(10, 2) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Suppliers
+CREATE TABLE suppliers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    contact_person VARCHAR(100),
+    contact_email VARCHAR(100),
+    contact_phone VARCHAR(20),
+    address TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_transaction_items_transaction ON transaction_items(transaction_id);
+-- Inventory Transactions (Audit Trail)
+CREATE TABLE inventory_logs (
+    id SERIAL PRIMARY KEY,
+    drug_id INT REFERENCES drugs(id),
+    action_type VARCHAR(20),          -- "ADD", "REMOVE", "ADJUST"
+    quantity INT,
+    before_quantity INT,
+    after_quantity INT,
+    user_id INT REFERENCES users(id), -- Who performed the action?
+    location_id INT REFERENCES locations(id),
+    notes TEXT,
+    timestamp TIMESTAMPTZ DEFAULT NOW()
+);
 
--- Audit Logs Table
+-- Sales Transactions
+CREATE TABLE sales (
+    id SERIAL PRIMARY KEY,
+    transaction_id VARCHAR(50) UNIQUE,
+    cashier_id INT REFERENCES users(id),
+    customer_name VARCHAR(100),
+    customer_phone VARCHAR(20),
+    subtotal DECIMAL(10, 2),
+    tax DECIMAL(10, 2),
+    discount DECIMAL(10, 2),
+    total DECIMAL(10, 2),
+    payment_method VARCHAR(20),
+    location_id INT REFERENCES locations(id),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Sales Items (Individual items in a sale)
+CREATE TABLE sale_items (
+    id SERIAL PRIMARY KEY,
+    sale_id INT REFERENCES sales(id) ON DELETE CASCADE,
+    drug_id INT REFERENCES drugs(id),
+    quantity INT,
+    unit_price DECIMAL(10, 2),
+    subtotal DECIMAL(10, 2),
+    prescription_required BOOLEAN DEFAULT FALSE
+);
+
+-- Drug Interactions (AI-Powered)
+CREATE TABLE drug_interactions (
+    id SERIAL PRIMARY KEY,
+    drug1_id INT REFERENCES drugs(id),
+    drug2_id INT REFERENCES drugs(id),
+    risk_level VARCHAR(20),          -- "High", "Medium", "Low"
+    description TEXT,
+    UNIQUE(drug1_id, drug2_id)
+);
+
+-- Audit Logs (General System Audit)
 CREATE TABLE audit_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES users(id),
-  action VARCHAR(255) NOT NULL,
-  details JSONB,
-  ip_address VARCHAR(50),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    action VARCHAR(50),
+    entity_type VARCHAR(50),         -- What object type was affected
+    entity_id INT,                   -- ID of the affected object
+    details JSONB,                   -- Additional audit details
+    ip_address VARCHAR(50),
+    timestamp TIMESTAMPTZ DEFAULT NOW()
 );
-
-CREATE INDEX idx_audit_logs_user ON audit_logs(user_id);
-CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
-CREATE INDEX idx_audit_logs_action ON audit_logs(action);
 ```
 
-## AI Integration Configuration
+#### Indexes for Performance with 50,000+ Items
+```sql
+-- Critical performance indexes
+CREATE INDEX idx_drugs_barcode ON drugs(barcode);
+CREATE INDEX idx_drugs_name ON drugs(name);
+CREATE INDEX idx_drugs_generic_name ON drugs(generic_name);
+CREATE INDEX idx_drugs_expiry ON drugs(expiry_date);
+CREATE INDEX idx_drugs_category ON drugs(category);
+CREATE INDEX idx_drugs_location_id ON drugs(location_id);
 
-The PillPulse system uses multiple AI capabilities that can be configured and extended:
+CREATE INDEX idx_inventory_logs_drug_id ON inventory_logs(drug_id);
+CREATE INDEX idx_inventory_logs_timestamp ON inventory_logs(timestamp);
+CREATE INDEX idx_inventory_logs_location_id ON inventory_logs(location_id);
 
-### 1. Natural Language Query System
+CREATE INDEX idx_sales_transaction_id ON sales(transaction_id); 
+CREATE INDEX idx_sales_cashier_id ON sales(cashier_id);
+CREATE INDEX idx_sales_created_at ON sales(created_at);
+CREATE INDEX idx_sales_location_id ON sales(location_id);
 
-The `AskAI` component uses a natural language processing system to interpret user queries about pharmacy data. To integrate with a production backend:
+CREATE INDEX idx_sale_items_sale_id ON sale_items(sale_id);
+CREATE INDEX idx_sale_items_drug_id ON sale_items(drug_id);
 
-```javascript
-// Example backend API endpoint for AI queries
-app.post('/api/ai/query', auth, async (req, res) => {
-  const { query } = req.body;
-  
-  try {
-    // Connect to OpenAI or other LLM provider
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are an AI assistant for a pharmacy POS system. Answer questions about inventory, sales, and business metrics based on the following data."
-        },
-        {
-          role: "user",
-          content: `Database context: ${JSON.stringify(dbContext)}\n\nUser query: ${query}`
+-- Add partial indexes for common queries
+CREATE INDEX idx_drugs_expiring_soon ON drugs(expiry_date) 
+WHERE expiry_date < NOW() + INTERVAL '90 days';
+
+CREATE INDEX idx_drugs_low_stock ON drugs(id) 
+WHERE stock_quantity < min_stock_threshold;
+```
+
+### 2. Backend API (FastAPI Implementation)
+
+#### Basic Setup
+```bash
+# Install dependencies
+pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart python-jose[cryptography] passlib[bcrypt] pillow
+```
+
+#### Project Structure
+```
+algopharm-backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py              # FastAPI application
+│   ├── database.py          # Database connection
+│   ├── config.py            # Configuration
+│   ├── middleware/          # Middleware components
+│   ├── models/              # SQLAlchemy models
+│   ├── schemas/             # Pydantic schemas
+│   ├── crud/                # Database operations
+│   ├── api/                 # API routes
+│   │   ├── __init__.py
+│   │   ├── auth.py         # Authentication
+│   │   ├── drugs.py        # Drug endpoints
+│   │   ├── inventory.py    # Inventory management
+│   │   ├── sales.py        # Sales operations
+│   │   ├── reports.py      # Reporting endpoints
+│   │   └── users.py        # User management
+│   ├── services/            # Business logic
+│   │   ├── ai_service.py   # AI integrations
+│   │   ├── barcode.py      # Barcode processing
+│   │   └── ocr.py          # OCR for drug images
+│   └── utils/               # Utility functions
+├── tests/                   # Test suite
+├── alembic/                 # Database migrations
+├── requirements.txt
+├── Dockerfile
+└── docker-compose.yml
+```
+
+#### Database Configuration (`database.py`)
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from app.config import settings
+
+DATABASE_URL = settings.DATABASE_URL
+
+engine = create_engine(
+    DATABASE_URL, pool_size=20, max_overflow=0
+)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+# Dependency to get DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+#### Authentication System with JWT (`api/auth.py`)
+```python
+from datetime import datetime, timedelta
+from typing import Optional
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from sqlalchemy.orm import Session
+
+from app import schemas, models, crud
+from app.database import get_db
+from app.config import settings
+
+# Security setup
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+def authenticate_user(db: Session, username: str, password: str):
+    user = crud.get_user_by_username(db, username)
+    if not user:
+        return False
+    if not verify_password(password, user.password):
+        return False
+    return user
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = schemas.TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    user = crud.get_user_by_username(db, username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    # Update last login time
+    user.last_login = datetime.utcnow()
+    db.commit()
+    return user
+
+async def get_current_active_user(current_user = Depends(get_current_user)):
+    if not current_user.active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
+# Role-based access control
+def require_role(roles: list):
+    async def role_checker(current_user = Depends(get_current_active_user)):
+        if current_user.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient permissions"
+            )
+        return current_user
+    return role_checker
+```
+
+#### Drug Management API (`api/drugs.py`)
+```python
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from sqlalchemy.orm import Session
+from typing import List, Optional
+import os
+from datetime import date
+
+from app import crud, models, schemas
+from app.database import get_db
+from app.api.auth import get_current_active_user, require_role
+from app.services import ocr, barcode
+
+router = APIRouter(
+    prefix="/drugs",
+    tags=["drugs"],
+    dependencies=[Depends(get_current_active_user)]
+)
+
+@router.post("/", response_model=schemas.Drug)
+async def create_drug(
+    drug: schemas.DrugCreate, 
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_role(["admin", "pharmacist"]))
+):
+    # Check if drug with same barcode exists
+    db_drug = crud.get_drug_by_barcode(db, barcode=drug.barcode)
+    if db_drug:
+        raise HTTPException(status_code=400, detail="Drug with this barcode already exists")
+    return crud.create_drug(db=db, drug=drug, user_id=current_user.id)
+
+@router.get("/", response_model=schemas.PaginatedDrugs)
+async def read_drugs(
+    skip: int = 0, 
+    limit: int = 100,
+    search: Optional[str] = None,
+    category: Optional[str] = None,
+    expiring_soon: bool = False,
+    low_stock: bool = False,
+    location_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """
+    Get drugs with pagination and filtering.
+    Optimized for large inventory (50,000+ items).
+    """
+    # Build query with filters
+    query_filters = {}
+    
+    if search:
+        query_filters["search"] = search
+    if category:
+        query_filters["category"] = category
+    if expiring_soon:
+        query_filters["expiring_soon"] = True
+    if low_stock:
+        query_filters["low_stock"] = True
+    if location_id:
+        query_filters["location_id"] = location_id
+    
+    # Get total count for pagination
+    total = crud.count_drugs(db, filters=query_filters)
+    
+    # Get drugs with filters and pagination
+    drugs = crud.get_drugs(
+        db, 
+        skip=skip, 
+        limit=limit,
+        filters=query_filters
+    )
+    
+    return {
+        "items": drugs,
+        "total": total,
+        "page": skip // limit + 1,
+        "pages": (total + limit - 1) // limit
+    }
+
+@router.get("/{drug_id}", response_model=schemas.Drug)
+async def read_drug(
+    drug_id: int, 
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    db_drug = crud.get_drug(db, drug_id=drug_id)
+    if db_drug is None:
+        raise HTTPException(status_code=404, detail="Drug not found")
+    return db_drug
+
+@router.post("/barcode-scan")
+async def scan_barcode(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Process barcode image and return drug info"""
+    # Save temp file
+    file_path = f"temp_{file.filename}"
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
+    
+    # Scan barcode
+    try:
+        barcode_value = barcode.scan_barcode(file_path)
+        # Clean up
+        os.remove(file_path)
+        
+        # Lookup drug by barcode
+        drug = crud.get_drug_by_barcode(db, barcode_value)
+        if not drug:
+            return {"status": "not_found", "barcode": barcode_value}
+            
+        return {"status": "success", "drug": drug}
+    except Exception as e:
+        # Clean up on error
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise HTTPException(status_code=422, detail=f"Failed to process barcode: {str(e)}")
+
+@router.post("/ocr-scan")
+async def scan_drug_packaging(
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(require_role(["admin", "pharmacist"]))
+):
+    """Extract drug info from packaging via OCR"""
+    # Save temp file
+    file_path = f"temp_{file.filename}"
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
+        
+    # Process with OCR
+    try:
+        drug_info = ocr.extract_drug_info(file_path)
+        # Clean up
+        os.remove(file_path)
+        return drug_info
+    except Exception as e:
+        # Clean up on error
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise HTTPException(status_code=422, detail=f"Failed to process image: {str(e)}")
+```
+
+#### Inventory Management (`api/inventory.py`) - Optimized for High Volume
+```python
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, status
+from sqlalchemy.orm import Session
+from typing import List, Optional
+
+from app import crud, models, schemas
+from app.database import get_db
+from app.api.auth import get_current_active_user, require_role
+
+router = APIRouter(
+    prefix="/inventory",
+    tags=["inventory"],
+    dependencies=[Depends(get_current_active_user)]
+)
+
+@router.post("/transaction", response_model=schemas.InventoryLog)
+async def create_inventory_transaction(
+    transaction: schemas.InventoryTransaction,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_role(["admin", "pharmacist"]))
+):
+    """
+    Create inventory transaction: add, remove, or adjust stock.
+    Designed to handle high transaction volume.
+    """
+    # Get current stock
+    drug = crud.get_drug(db, drug_id=transaction.drug_id)
+    if not drug:
+        raise HTTPException(status_code=404, detail="Drug not found")
+    
+    before_quantity = drug.stock_quantity
+    after_quantity = before_quantity
+    
+    # Update quantity based on action type
+    if transaction.action_type == "ADD":
+        after_quantity = before_quantity + transaction.quantity
+    elif transaction.action_type == "REMOVE":
+        if before_quantity < transaction.quantity:
+            raise HTTPException(status_code=400, detail="Insufficient stock")
+        after_quantity = before_quantity - transaction.quantity
+    elif transaction.action_type == "ADJUST":
+        after_quantity = transaction.quantity
+    else:
+        raise HTTPException(status_code=400, detail="Invalid action type")
+    
+    # Create log entry
+    log = crud.create_inventory_log(
+        db=db,
+        drug_id=transaction.drug_id,
+        action_type=transaction.action_type,
+        quantity=transaction.quantity,
+        before_quantity=before_quantity,
+        after_quantity=after_quantity,
+        user_id=current_user.id,
+        location_id=transaction.location_id,
+        notes=transaction.notes
+    )
+    
+    # Update drug stock quantity
+    crud.update_drug_stock(db, drug.id, after_quantity)
+    
+    # Add background task for low stock notifications
+    if after_quantity <= drug.min_stock_threshold:
+        background_tasks.add_task(
+            crud.create_low_stock_notification, 
+            db=db, 
+            drug_id=drug.id, 
+            current_stock=after_quantity
+        )
+    
+    return log
+
+@router.get("/logs", response_model=schemas.PaginatedInventoryLogs)
+async def get_inventory_logs(
+    skip: int = 0,
+    limit: int = 100,
+    drug_id: Optional[int] = None,
+    location_id: Optional[int] = None,
+    action_type: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_role(["admin", "pharmacist"]))
+):
+    """
+    Get paginated inventory logs with filters.
+    Optimized for querying large datasets.
+    """
+    filters = {
+        "drug_id": drug_id,
+        "location_id": location_id,
+        "action_type": action_type,
+        "start_date": start_date,
+        "end_date": end_date
+    }
+    
+    # Remove None values
+    filters = {k: v for k, v in filters.items() if v is not None}
+    
+    # Get count for pagination
+    total = crud.count_inventory_logs(db, filters=filters)
+    
+    # Get logs with pagination
+    logs = crud.get_inventory_logs(db, skip=skip, limit=limit, filters=filters)
+    
+    return {
+        "items": logs,
+        "total": total,
+        "page": skip // limit + 1,
+        "pages": (total + limit - 1) // limit
+    }
+
+@router.get("/expiring", response_model=List[schemas.ExpiringDrug])
+async def get_expiring_drugs(
+    days: int = 90,
+    location_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Get drugs expiring within specified days"""
+    return crud.get_expiring_drugs(db, days=days, location_id=location_id)
+
+@router.get("/low-stock", response_model=List[schemas.LowStockDrug])
+async def get_low_stock_drugs(
+    location_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Get drugs below minimum stock threshold"""
+    return crud.get_low_stock_drugs(db, location_id=location_id)
+```
+
+#### Sales API for POS Operations (`api/sales.py`)
+```python
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, status
+from sqlalchemy.orm import Session
+from typing import List, Optional
+from sqlalchemy import text
+
+from app import crud, models, schemas
+from app.database import get_db, engine
+from app.api.auth import get_current_active_user, require_role
+from app.services.ai_service import check_drug_interactions
+
+router = APIRouter(
+    prefix="/sales",
+    tags=["sales"],
+    dependencies=[Depends(get_current_active_user)]
+)
+
+@router.post("/", response_model=schemas.SaleResponse)
+async def create_sale(
+    sale: schemas.SaleCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """
+    Process a complete sale transaction.
+    Handles inventory updates and calculates totals.
+    """
+    # Check drug interactions
+    drug_ids = [item.drug_id for item in sale.items]
+    if len(drug_ids) > 1:
+        interactions = check_drug_interactions(db, drug_ids)
+        if interactions:
+            # Return interactions but still allow the sale
+            return {
+                "status": "warning",
+                "message": "Potential drug interactions detected",
+                "interactions": interactions
+            }
+    
+    # Begin transaction (using context manager)
+    conn = engine.connect()
+    trans = conn.begin()
+    try:
+        # Create sale
+        db_sale = crud.create_sale(
+            db=db,
+            sale=sale,
+            cashier_id=current_user.id
+        )
+        
+        # Process each item and update inventory
+        for item in sale.items:
+            # Check if enough stock
+            drug = crud.get_drug(db, item.drug_id)
+            if drug.stock_quantity < item.quantity:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Insufficient stock for {drug.name}. Available: {drug.stock_quantity}"
+                )
+            
+            # Add sale item
+            crud.add_sale_item(
+                db=db,
+                sale_id=db_sale.id,
+                drug_id=item.drug_id,
+                quantity=item.quantity,
+                unit_price=item.unit_price
+            )
+            
+            # Update inventory (optimized bulk update)
+            new_quantity = drug.stock_quantity - item.quantity
+            conn.execute(
+                text("UPDATE drugs SET stock_quantity = :new_qty WHERE id = :drug_id"),
+                {"new_qty": new_quantity, "drug_id": item.drug_id}
+            )
+            
+            # Log inventory change in background
+            background_tasks.add_task(
+                crud.create_inventory_log,
+                db=db,
+                drug_id=item.drug_id,
+                action_type="REMOVE",
+                quantity=item.quantity,
+                before_quantity=drug.stock_quantity,
+                after_quantity=new_quantity,
+                user_id=current_user.id,
+                location_id=db_sale.location_id,
+                notes=f"Sale #{db_sale.transaction_id}"
+            )
+        
+        # Commit transaction
+        trans.commit()
+        
+        return {
+            "status": "success",
+            "message": "Sale completed successfully",
+            "sale": db_sale
         }
-      ],
-      temperature: 0.7,
-      max_tokens: 500
-    });
+    except Exception as e:
+        trans.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        conn.close()
+
+@router.get("/", response_model=schemas.PaginatedSales)
+async def get_sales(
+    skip: int = 0,
+    limit: int = 100,
+    cashier_id: Optional[int] = None,
+    location_id: Optional[int] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    min_total: Optional[float] = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """
+    Get sales with pagination and filtering.
+    Access control based on user role.
+    """
+    # Role-based access restrictions
+    if current_user.role == "cashier" and (cashier_id is None or cashier_id != current_user.id):
+        # Cashiers can only see their own sales
+        cashier_id = current_user.id
     
-    res.json({
-      response: response.choices[0].message.content,
-      type: determineResponseType(response.choices[0].message.content)
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error processing query" });
-  }
-});
-```
-
-### 2. Drug Interaction Detection
-
-Configure the medication interaction detection system:
-
-```javascript
-// Example implementation for drug interaction detection API
-app.post('/api/medications/check-interactions', auth, async (req, res) => {
-  const { medicationIds } = req.body;
-  
-  try {
-    // Get medication details
-    const medications = await db.query(
-      'SELECT id, name, interactions FROM medications WHERE id = ANY($1)',
-      [medicationIds]
-    );
-    
-    // Algorithm to check for interactions
-    const interactions = detectInteractions(medications.rows);
-    
-    res.json({ interactions });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error checking interactions" });
-  }
-});
-```
-
-## Scaling the System
-
-To ensure PillPulse can handle 50,000+ inventory items and high transaction volumes:
-
-### 1. Database Optimization
-
-- Use proper indexing on commonly queried fields
-- Implement database partitioning for historical transaction data
-- Configure connection pooling for optimal performance
-- Implement query caching for frequently accessed data
-
-### 2. API Performance
-
-- Implement pagination for all list endpoints
-- Use efficient filtering and sorting techniques
-- Enable compression for API responses
-- Implement rate limiting to prevent abuse
-
-### 3. Caching Strategy
-
-```javascript
-// Example Redis caching implementation
-const redis = require('redis');
-const client = redis.createClient();
-const CACHE_DURATION = 60 * 15; // 15 minutes
-
-// Middleware to cache responses
-function cacheResponse(key, duration) {
-  return async (req, res, next) => {
-    try {
-      const cacheKey = `${key}:${JSON.stringify(req.query)}`;
-      const cachedData = await client.get(cacheKey);
-      
-      if (cachedData) {
-        return res.json(JSON.parse(cachedData));
-      }
-      
-      // Store original res.json method
-      const originalJson = res.json;
-      
-      // Override res.json method to cache response
-      res.json = function(data) {
-        client.set(cacheKey, JSON.stringify(data), 'EX', duration);
-        return originalJson.call(this, data);
-      };
-      
-      next();
-    } catch (err) {
-      next();
-    }
-  };
-}
-
-// Usage in routes
-router.get('/inventory', cacheResponse('inventory', CACHE_DURATION), async (req, res) => {
-  // Implementation
-});
-```
-
-### 4. Horizontal Scaling
-
-For deployment across multiple servers:
-
-```javascript
-// app.js
-const cluster = require('cluster');
-const numCPUs = require('os').cpus().length;
-
-if (cluster.isMaster) {
-  console.log(`Master ${process.pid} is running`);
-
-  // Fork workers for each CPU
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
-
-  cluster.on('exit', (worker) => {
-    console.log(`Worker ${worker.process.pid} died`);
-    cluster.fork(); // Replace dead worker
-  });
-} else {
-  // Workers share the TCP connection
-  require('./server');
-  console.log(`Worker ${process.pid} started`);
-}
-```
-
-## Authorization & Security Implementation
-
-```javascript
-// src/middleware/auth.js
-const jwt = require('jsonwebtoken');
-
-module.exports = function(req, res, next) {
-  // Get token from header
-  const token = req.header('x-auth-token');
-
-  // Check if no token
-  if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
-  }
-
-  // Verify token
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(401).json({ message: 'Token is not valid' });
-  }
-};
-
-// src/middleware/roleCheck.js
-module.exports = function(roles) {
-  return function(req, res, next) {
-    if (!req.user) {
-      return res.status(401).json({ message: 'No authentication' });
-    }
-
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Access denied' });
+    filters = {
+        "cashier_id": cashier_id,
+        "location_id": location_id,
+        "start_date": start_date,
+        "end_date": end_date,
+        "min_total": min_total
     }
     
-    next();
-  };
-};
+    # Remove None values
+    filters = {k: v for k, v in filters.items() if v is not None}
+    
+    # Get count for pagination
+    total = crud.count_sales(db, filters=filters)
+    
+    # Get sales with pagination
+    sales = crud.get_sales(db, skip=skip, limit=limit, filters=filters)
+    
+    return {
+        "items": sales,
+        "total": total,
+        "page": skip // limit + 1,
+        "pages": (total + limit - 1) // limit
+    }
+
+@router.get("/{sale_id}", response_model=schemas.SaleDetail)
+async def get_sale(
+    sale_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Get detailed information about a specific sale"""
+    sale = crud.get_sale(db, sale_id=sale_id)
+    
+    if not sale:
+        raise HTTPException(status_code=404, detail="Sale not found")
+    
+    # Access control: cashiers can only view their own sales
+    if current_user.role == "cashier" and sale.cashier_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this sale")
+        
+    return sale
 ```
 
-## Testing Strategy
+### 3. AI Integration Code Examples
 
-To ensure the system works correctly with large data volumes:
+#### Drug Interaction Detection (`services/ai_service.py`)
+```python
+from typing import List, Dict, Any
+import os
+from sqlalchemy.orm import Session
+from app import crud, models
 
-1. **Unit Testing**:
-   ```javascript
-   const { expect } = require('chai');
-   const sinon = require('sinon');
-   const inventoryController = require('../controllers/inventoryController');
+# For demo, we'll use a rule-based approach
+# In production, use pretrained ML models from huggingface transformers
 
-   describe('Inventory Controller', () => {
-     it('should return paginated results', async () => {
-       // Test implementation
-     });
+def check_drug_interactions(db: Session, drug_ids: List[int]) -> List[Dict[str, Any]]:
+    """Check for potential interactions between drugs"""
+    if len(drug_ids) < 2:
+        return []
+    
+    interactions = []
+    
+    # Get all drug details
+    drugs = [crud.get_drug(db, drug_id) for drug_id in drug_ids]
+    
+    # Check for interactions in our database
+    for i, drug1 in enumerate(drugs):
+        for j, drug2 in enumerate(drugs):
+            if i >= j:  # Skip self-comparisons and duplicates
+                continue
+                
+            # Check our interaction database
+            db_interaction = crud.get_drug_interaction(
+                db, drug1_id=drug1.id, drug2_id=drug2.id
+            )
+            
+            if db_interaction:
+                interactions.append({
+                    "drug1": drug1.name,
+                    "drug2": drug2.name,
+                    "risk_level": db_interaction.risk_level,
+                    "description": db_interaction.description
+                })
+    
+    return interactions
 
-     // More tests
-   });
-   ```
+# Setup for a more sophisticated ML-based approach
+# (For demonstration - actual implementation would use a real model)
+def setup_interaction_model():
+    """Initialize the drug interaction prediction model"""
+    try:
+        from transformers import AutoTokenizer, AutoModelForSequenceClassification
+        import torch
+        
+        # In production, use a real fine-tuned model for drug interactions
+        tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+        model = AutoModelForSequenceClassification.from_pretrained(
+            "distilbert-base-uncased", num_labels=3
+        )
+        
+        return {"tokenizer": tokenizer, "model": model}
+    except ImportError:
+        print("Transformers library not installed. Using rule-based interactions only.")
+        return None
 
-2. **Load Testing**:
-   ```bash
-   # Using k6 for load testing API endpoints
-   k6 run --vus 100 --duration 30s load-tests/inventory-api.js
-   ```
+# Global model instance (initialize only once)
+interaction_model = setup_interaction_model()
 
-## Deployment Strategy
-
-For a system handling 50,000+ items:
-
+def predict_interaction(drug1_name: str, drug2_name: str) -> Dict[str, Any]:
+    """Predict interaction between two drugs using ML model"""
+    if not interaction_model:
+        return {"risk_level": "unknown", "confidence": 0.0}
+    
+    try:
+        import torch
+        
+        # Create input text
+        text = f"Interaction between {drug1_name} and {drug2_name}"
+        
+        # Tokenize
+        inputs = interaction_model["tokenizer"](
+            text, return_tensors="pt", truncation=True, padding=True
+        )
+        
+        # Predict
+        with torch.no_grad():
+            outputs = interaction_model["model"](**inputs)
+            predictions = outputs.logits.softmax(dim=1)
+        
+        # Map prediction to risk level
+        risk_levels = ["low", "medium", "high"]
+        predicted_class = torch.argmax(predictions, dim=1).item()
+        confidence = predictions[0][predicted_class].item()
+        
+        return {
+            "risk_level": risk_levels[predicted_class],
+            "confidence": round(confidence, 4)
+        }
+    except Exception as e:
+        print(f"Error in interaction prediction: {str(e)}")
+        return {"risk_level": "unknown", "confidence": 0.0}
 ```
-# Docker Compose configuration for deployment
+
+#### OCR for Drug Label Recognition (`services/ocr.py`)
+```python
+import cv2
+import pytesseract
+import re
+from PIL import Image
+from typing import Dict, Any
+
+# Configure Tesseract path if needed
+# pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+
+def preprocess_image(image_path: str):
+    """Image preprocessing for better OCR results"""
+    # Read image
+    img = cv2.imread(image_path)
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    # Apply threshold to get black and white image
+    _, binary = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+    
+    # Apply image filters to enhance text
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+    processed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+    
+    return processed
+
+def extract_drug_info(image_path: str) -> Dict[str, Any]:
+    """Extract drug information from packaging image"""
+    # Preprocess image
+    processed_img = preprocess_image(image_path)
+    
+    # Perform OCR
+    text = pytesseract.image_to_string(processed_img)
+    lines = text.split('\n')
+    lines = [line.strip() for line in lines if line.strip()]
+    
+    # Extract information using regex patterns
+    drug_info = {}
+    
+    # Extract drug name (usually first line or line with largest font)
+    drug_info['name'] = lines[0] if lines else ""
+    
+    # Extract dosage (pattern like 500mg, 10mg/ml)
+    dosage_pattern = r'(\d+\s*(?:mg|mcg|g|ml|mg/ml))'
+    dosage_matches = re.findall(dosage_pattern, text, re.IGNORECASE)
+    if dosage_matches:
+        drug_info['dosage'] = dosage_matches[0]
+    
+    # Extract expiry date (format like Exp: MM/YYYY or Expiry: DD/MM/YYYY)
+    exp_pattern = r'(?:exp|expiry|expiration)(?:\s*date|\s*):?\s*(\d{1,2}/\d{1,2}/\d{4}|\d{1,2}/\d{4}|\d{2}-\d{2}-\d{2,4})'
+    exp_matches = re.findall(exp_pattern, text, re.IGNORECASE)
+    if exp_matches:
+        drug_info['expiry_date'] = exp_matches[0]
+    
+    # Extract batch number
+    batch_pattern = r'(?:batch|lot)(?:\s*no|\s*number|\s*):?\s*([A-Za-z0-9-]+)'
+    batch_matches = re.findall(batch_pattern, text, re.IGNORECASE)
+    if batch_matches:
+        drug_info['batch_number'] = batch_matches[0]
+    
+    # Extract barcode if visible (assuming EAN-13)
+    barcode_pattern = r'(?:barcode|ean|gtin):?\s*(\d{8,14})'
+    barcode_matches = re.findall(barcode_pattern, text, re.IGNORECASE)
+    if barcode_matches:
+        drug_info['barcode'] = barcode_matches[0]
+    
+    return {
+        "extracted_text": text,
+        "structured_info": drug_info
+    }
+```
+
+#### Barcode Scanning Service (`services/barcode.py`)
+```python
+from pyzbar.pyzbar import decode
+from PIL import Image
+import cv2
+import numpy as np
+
+def scan_barcode(image_path: str) -> str:
+    """Scan barcode from image and return decoded value"""
+    # Read the image
+    img = cv2.imread(image_path)
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    # Apply some image processing to improve barcode detection
+    # Increase contrast
+    enhanced = cv2.convertScaleAbs(gray, alpha=1.5, beta=0)
+    
+    # Apply adaptive threshold
+    binary = cv2.adaptiveThreshold(
+        enhanced, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+        cv2.THRESH_BINARY, 11, 2
+    )
+    
+    # Try to decode with pyzbar
+    barcodes = decode(binary)
+    
+    # If no barcodes found, try with original image
+    if not barcodes:
+        barcodes = decode(Image.open(image_path))
+    
+    # Check if any barcode was detected
+    if not barcodes:
+        raise ValueError("No barcode found in the image")
+    
+    # Return the first barcode value
+    return barcodes[0].data.decode('utf-8')
+```
+
+### 4. Deployment Configuration
+
+#### Docker Compose Setup
+```yaml
+# docker-compose.yml
 version: '3'
 
 services:
+  # Database
+  postgres:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=pharmadmin
+      - POSTGRES_PASSWORD=securepassword
+      - POSTGRES_DB=algopharm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pharmadmin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  # Backend API
   api:
     build: ./backend
-    restart: always
-    environment:
-      - NODE_ENV=production
-      - DB_HOST=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=your_password
-      - DB_NAME=pillpulse
-      - JWT_SECRET=your_jwt_secret
     ports:
-      - "5000:5000"
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://pharmadmin:securepassword@postgres/algopharm
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
     depends_on:
       - postgres
       - redis
-    deploy:
-      replicas: 4
+    restart: unless-stopped
 
-  postgres:
-    image: postgres:14
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=your_password
-      - POSTGRES_DB=pillpulse
-    ports:
-      - "5432:5432"
-
-  redis:
-    image: redis:6
-    volumes:
-      - redis_data:/data
-
-  nginx:
-    image: nginx:latest
+  # Frontend
+  frontend:
+    build: ./frontend
     ports:
       - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./frontend/build:/usr/share/nginx/html
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
     depends_on:
       - api
+    restart: unless-stopped
 
 volumes:
   postgres_data:
   redis_data:
 ```
 
+#### FastAPI Main Application (`main.py`)
+```python
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from sqlalchemy.orm import Session
+
+from app import models
+from app.database import engine, get_db
+from app.api import auth, drugs, inventory, sales, reports, users
+from app.config import settings
+
+# Create database tables
+models.Base.metadata.create_all(bind=engine)
+
+# Startup and shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    print("Starting up PillPulse API...")
+    
+    # Possible startup tasks:
+    # - Initialize ML models
+    # - Prepare caches
+    
+    yield
+    
+    # Shutdown
+    print("Shutting down PillPulse API...")
+
+# Initialize FastAPI app
+app = FastAPI(
+    title="PillPulse API",
+    description="API for PillPulse Pharmacy Management System",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# Setup CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(auth.router, prefix="/api")
+app.include_router(drugs.router, prefix="/api")
+app.include_router(inventory.router, prefix="/api")
+app.include_router(sales.router, prefix="/api")
+app.include_router(reports.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
+
+@app.get("/api/health")
+def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "version": "1.0.0"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=settings.DEBUG
+    )
+```
+
+### 5. Performance Optimization for 50,000+ Items
+
+#### Database Performance Tuning
+```sql
+-- PostgreSQL configuration recommendations
+-- (Add to postgresql.conf)
+
+# Memory settings
+shared_buffers = 2GB               # 25% of available RAM
+effective_cache_size = 6GB         # 75% of available RAM
+work_mem = 64MB                    # For complex queries
+maintenance_work_mem = 256MB       # For maintenance operations
+
+# Query planner settings
+random_page_cost = 1.1             # For SSD storage
+effective_io_concurrency = 200     # For SSD storage
+
+# Write-ahead log settings
+wal_buffers = 16MB                 # 1/32 of shared_buffers
+synchronous_commit = off           # Only for non-critical deployments
+
+# Background writer settings
+bgwriter_delay = 200ms             # Background writer sleep time
+bgwriter_lru_maxpages = 100        # Max pages per round
+bgwriter_lru_multiplier = 2.0      # Multiple of average requirement
+```
+
+#### API Query Optimization
+```python
+# Example of optimized query for large inventory
+def get_drugs_optimized(db, skip=0, limit=100, filters=None):
+    """
+    Optimized query for retrieving drugs from large inventory.
+    Uses pagination, selective column fetching, and query optimization.
+    """
+    from sqlalchemy import select, func
+    from sqlalchemy.orm import selectinload
+    
+    if filters is None:
+        filters = {}
+    
+    # Start with the base query 
+    query = select(models.Drug)
+    
+    # Apply filters
+    if "search" in filters:
+        search = f"%{filters['search']}%"
+        query = query.where(
+            (models.Drug.name.ilike(search)) | 
+            (models.Drug.generic_name.ilike(search)) |
+            (models.Drug.barcode == filters['search'])
+        )
+    
+    if "category" in filters:
+        query = query.where(models.Drug.category == filters["category"])
+    
+    if "expiring_soon" in filters:
+        query = query.where(
+            models.Drug.expiry_date <= func.current_date() + 30
+        )
+    
+    if "low_stock" in filters:
+        query = query.where(
+            models.Drug.stock_quantity <= models.Drug.min_stock_threshold
+        )
+    
+    if "location_id" in filters:
+        query = query.where(models.Drug.location_id == filters["location_id"])
+    
+    # Add sorting and pagination
+    query = query.order_by(models.Drug.name)
+    query = query.offset(skip).limit(limit)
+    
+    # Execute query
+    result = db.execute(query)
+    return result.scalars().all()
+```
+
+#### Caching Strategy with Redis
+```python
+import redis
+import json
+from functools import wraps
+from fastapi import Depends
+from app.database import get_db
+from app.config import settings
+
+# Redis connection
+redis_client = redis.Redis.from_url(settings.REDIS_URL)
+
+def cache_response(key_prefix, expire=300):
+    """Cache decorator for API responses"""
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            # Generate cache key
+            cache_key = f"{key_prefix}:{json.dumps(kwargs, sort_keys=True)}"
+            
+            # Try to get from cache
+            cached_data = redis_client.get(cache_key)
+            if cached_data:
+                return json.loads(cached_data)
+            
+            # Execute function if not cached
+            response = await func(*args, **kwargs)
+            
+            # Cache the response
+            redis_client.setex(
+                cache_key,
+                expire,
+                json.dumps(response)
+            )
+            
+            return response
+        return wrapper
+    return decorator
+
+# Usage example
+@router.get("/popular")
+@cache_response("popular_drugs", expire=3600)
+async def get_popular_drugs(db: Session = Depends(get_db)):
+    """Get most popular drugs (cached for 1 hour)"""
+    # Expensive query that shouldn't run frequently
+    return crud.get_popular_drugs(db, limit=20)
+```
+
+#### Connection Pooling for Concurrent Users
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
+
+# Optimized engine for high concurrency
+engine = create_engine(
+    settings.DATABASE_URL,
+    poolclass=QueuePool,
+    pool_size=20,              # Max connections in pool
+    max_overflow=30,           # Max overflow connections
+    pool_timeout=30,           # Seconds to wait for connection
+    pool_recycle=1800,         # Recycle connections every 30 min
+    pool_pre_ping=True         # Check connection validity
+)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+```
+
+### 6. Scaling Strategy
+
+#### Horizontal Scaling with Kubernetes
+```yaml
+# kubernetes/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pillpulse-api
+spec:
+  replicas: 3  # Scale horizontally with multiple pods
+  selector:
+    matchLabels:
+      app: pillpulse-api
+  template:
+    metadata:
+      labels:
+        app: pillpulse-api
+    spec:
+      containers:
+      - name: api
+        image: pillpulse/api:latest
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: pillpulse-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: pillpulse-secrets
+              key: redis-url
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
 ---
 
-This document serves as the comprehensive guide to the PillPulse Pharmacy POS System, detailing its features, architecture, implementation plan, and backend integration. It provides a roadmap for development and a reference for understanding the system's capabilities.
+# kubernetes/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pillpulse-api
+spec:
+  selector:
+    app: pillpulse-api
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP
+
+---
+
+# kubernetes/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pillpulse-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - api.pillpulse.com
+    secretName: pillpulse-tls
+  rules:
+  - host: api.pillpulse.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pillpulse-api
+            port:
+              number: 80
+
+---
+
+# kubernetes/hpa.yaml (Horizontal Pod Autoscaler)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pillpulse-api-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pillpulse-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+```
+
+### 7. Data Protection & Compliance
+
+#### Audit Logging Service
+```python
+from fastapi import Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
+from app.database import SessionLocal
+import json
+import time
+
+class AuditMiddleware(BaseHTTPMiddleware):
+    """Middleware to log all API actions for compliance"""
+    
+    async def dispatch(self, request: Request, call_next):
+        # Start timer
+        start_time = time.time()
+        
+        # Get request details
+        path = request.url.path
+        method = request.method
+        
+        # Skip audit for non-sensitive paths
+        if path in ["/api/health", "/docs", "/openapi.json"]:
+            return await call_next(request)
+            
+        # Get user from request state if available
+        user_id = None
+        try:
+            if hasattr(request.state, "user"):
+                user_id = request.state.user.id
+        except:
+            pass
+            
+        # Process the request
+        response = await call_next(request)
+        
+        # Audit log for sensitive operations
+        if path.startswith("/api/") and method in ["POST", "PUT", "DELETE", "PATCH"]:
+            # Get request body for sensitive operations
+            request_body = {}
+            if method != "GET":
+                try:
+                    # Clone the request body stream
+                    body = await request.body()
+                    request_body = json.loads(body)
+                    
+                    # Mask sensitive data
+                    if "password" in request_body:
+                        request_body["password"] = "********"
+                except:
+                    request_body = {"error": "Could not parse request body"}
+            
+            # Log the audit entry
+            db = SessionLocal()
+            try:
+                from app import models
+                
+                # Create audit log
+                audit_log = models.AuditLog(
+                    user_id=user_id,
+                    action=f"{method} {path}",
+                    entity_type=path.split("/")[-2] if len(path.split("/")) > 2 else "unknown",
+                    entity_id=path.split("/")[-1] if path.split("/")[-1].isdigit() else None,
+                    details={
+                        "request": request_body,
+                        "status_code": response.status_code,
+                        "duration_ms": round((time.time() - start_time) * 1000, 2),
+                        "ip_address": request.client.host if request.client else None,
+                        "user_agent": request.headers.get("user-agent")
+                    },
+                    ip_address=request.client.host if request.client else None
+                )
+                db.add(audit_log)
+                db.commit()
+            except Exception as e:
+                print(f"Audit logging error: {str(e)}")
+            finally:
+                db.close()
+                
+        return response
+```
+
+---
+
+This comprehensive guide provides everything needed to set up and optimize a backend system capable of handling 50,000+ inventory items for the PillPulse Pharmacy management system. The implementation includes database design, API endpoints, AI integration, and deployment strategies optimized for performance and scalability.
 
 © 2025 PillPulse. All Rights Reserved.
+
