@@ -28,7 +28,7 @@ export const Login = () => {
   // Quick login buttons for demonstration purposes
   const quickLogin = (role: "owner" | "pharmacist" | "cashier") => {
     setUserRole(role);
-    setEmail(role === "owner" ? "admin@pillpulse.com" : role === "pharmacist" ? "pharma@pillpulse.com" : "cashier@pillpulse.com");
+    setEmail(role === "owner" ? "admin@algopharm.com" : role === "pharmacist" ? "pharma@algopharm.com" : "cashier@algopharm.com");
     setPassword("password123");
   };
 
@@ -36,21 +36,21 @@ export const Login = () => {
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 relative">
       {/* Background pharmacy name */}
       <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-        <h1 className="text-[120px] font-extrabold tracking-tighter">PILLPULSE</h1>
+        <h1 className="text-[120px] font-extrabold tracking-tighter">ALGOPHARM</h1>
       </div>
       
       <div className="mb-8 flex items-center justify-center">
         <div className="pill-gradient p-2 rounded-md mr-2">
           <Barcode className="h-6 w-6 text-white" />
         </div>
-        <h1 className="text-4xl font-bold text-pill-500">PillPulse</h1>
+        <h1 className="text-4xl font-bold text-pill-500">AlgoPharm</h1>
       </div>
       
       <p className="text-muted-foreground mb-8">Advanced Pharmacy Management System</p>
 
       <Card className="max-w-md w-full">
         <CardHeader>
-          <CardTitle>Login to PillPulse</CardTitle>
+          <CardTitle>Login to AlgoPharm</CardTitle>
           <CardDescription>Access the pharmacy management system</CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
@@ -126,7 +126,7 @@ export const Login = () => {
       </Card>
       
       <footer className="mt-8 text-center text-sm text-muted-foreground">
-        <p>© 2025 PillPulse Pharmacy. All rights reserved.</p>
+        <p>© 2025 AlgoPharm Pharmacy. All rights reserved.</p>
       </footer>
     </div>
   );

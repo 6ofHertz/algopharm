@@ -86,7 +86,7 @@ export const DashboardLayout = () => {
               <div className="pill-gradient p-1.5 rounded-md mr-2">
                 <Barcode className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-pill-500">PillPulse</h1>
+              <h1 className="text-xl font-bold text-pill-500">AlgoPharm</h1>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto py-2">
@@ -125,7 +125,7 @@ export const DashboardLayout = () => {
             <SidebarTrigger />
             <div className="flex-1">
               <h1 className="text-lg font-semibold">
-                {navigation.find((item) => item.id === activeItem)?.name || "PillPulse"}
+                {navigation.find((item) => item.id === activeItem)?.name || "AlgoPharm"}
               </h1>
             </div>
             <div className="flex items-center gap-3 mr-4">

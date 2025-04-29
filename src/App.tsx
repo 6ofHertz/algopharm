@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="pillpulse-theme">
+    <ThemeProvider defaultTheme="light" storageKey="algopharm-theme">
       <Toaster />
       <HashRouter>
         <Routes>
