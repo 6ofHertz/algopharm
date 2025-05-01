@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
 import { InventoryFilters } from "@/components/inventory/InventoryFilters";
-import { FactGenerator } from "@/components/common/FactGenerator";
 
 interface InventoryItem {
   id: string;
@@ -232,7 +230,6 @@ const Inventory = () => {
     <div className="flex-1 space-y-4">
       <div className="flex justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Inventory Management</h2>
-        <FactGenerator />
       </div>
       
       <Tabs defaultValue="all" className="space-y-4">
