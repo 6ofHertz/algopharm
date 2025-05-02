@@ -74,7 +74,7 @@ PillPulse is a comprehensive, modern Point of Sale (POS) system specifically des
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourgithub/pillpulse.git
+git clone https://github.com/6ofHertz/pillpulse.git
 
 # Navigate to the project directory
 cd pillpulse
