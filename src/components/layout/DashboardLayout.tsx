@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { Sidebar, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Barcode, Calendar, LayoutDashboard, LogOut, Search, Settings, User, Clock } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Barcode, Calendar, LayoutDashboard, LogOut, Search, Settings, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { UserMenu } from "./UserMenu";
@@ -16,7 +15,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export const DashboardLayout = () => {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("dashboard");
-  const [currentTime, setCurrentTime] = useState(new Date());
   const isMobile = useIsMobile();
   const [user, setUser] = useState({
     name: "Dr. Sarah Johnson",
@@ -24,15 +22,6 @@ export const DashboardLayout = () => {
     initials: "SJ",
     id: "PHR-001",
   });
-
-  // Update clock every minute
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
-    return () => clearInterval(timer);
-  }, []);
 
   const navigation = [
     {
@@ -128,34 +117,12 @@ export const DashboardLayout = () => {
                 {navigation.find((item) => item.id === activeItem)?.name || "AlgoPharm"}
               </h1>
             </div>
-            <div className="flex items-center gap-3 mr-4">
-              <div className="flex items-center border rounded-full px-3 py-1 bg-card text-sm">
-                <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span className="text-xs font-medium">
-                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
-            </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <Button variant="outline" size="icon" onClick={handleSearch}>
                 <Search className="h-5 w-5" />
                 <span className="sr-only">Search</span>
               </Button>
-              <div className="flex items-center gap-2">
-                <div className="text-right hidden sm:block">
-                  <div className="text-sm font-medium">{user.name}</div>
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <span className="mr-2">{user.id}</span>
-                    <Badge variant="outline" className="h-5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                      {user.role}
-                    </Badge>
-                  </div>
-                </div>
-                <Avatar>
-                  <AvatarFallback>{user.initials}</AvatarFallback>
-                </Avatar>
-              </div>
             </div>
           </header>
           <main className="flex-1 overflow-y-auto p-6">

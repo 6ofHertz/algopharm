@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -6,12 +5,12 @@ import {
   Settings, 
   BarChart, 
   Package, 
-  Shield
+  Shield,
+  AlertTriangle
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AskAI } from "@/components/dashboard/AskAI";
-import { FactGenerator } from "@/components/common/FactGenerator";
 import { UserManagement } from "./admin/UserManagement";
 import { SystemSettings } from "./admin/Settings";
 import { SalesReportAdmin } from "./admin/SalesReport";
@@ -32,7 +31,6 @@ export const AdminDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold">Admin Dashboard</h2>
-        <FactGenerator />
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

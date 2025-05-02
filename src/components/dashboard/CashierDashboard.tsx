@@ -15,7 +15,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { RecentSales } from "./RecentSales";
 import { TopSellingItems } from "./TopSellingItems";
-import { FactGenerator } from "@/components/common/FactGenerator";
 import { ShiftTracker } from "./cashier/ShiftTracker";
 import { AccountingFeatures } from "./cashier/AccountingFeatures";
 import { UserInfoBar } from "../common/UserInfoBar";
@@ -27,7 +26,6 @@ export const CashierDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold animate-fade-in">Cashier Dashboard</h2>
-        <FactGenerator />
       </div>
       
       {/* Quick Action Cards */}

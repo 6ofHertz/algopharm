@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, ArrowRight } from "lucide-react";
+import { Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 type FactCategory = "health" | "medicine" | "science" | "history" | "joke";
@@ -79,35 +79,37 @@ export const FactGenerator: React.FC = () => {
   }, [category]);
 
   return (
-    <div className="flex items-center">
-      <div className="relative">
-        <Button variant="outline" onClick={generateFact} className="flex items-center">
-          <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
-          <span className="mr-1">Fact</span>
-          <ArrowRight className="h-3 w-3" />
-        </Button>
-        
-        {isVisible && currentFact && (
-          <Card className="absolute right-0 mt-2 w-80 z-50 animate-fade-in">
-            <CardContent className="pt-3 text-sm">
-              <div className="flex gap-2 mb-2 flex-wrap">
-                {(["health", "medicine", "science", "history", "joke"] as FactCategory[]).map((cat) => (
-                  <Button 
-                    key={cat} 
-                    variant={category === cat ? "default" : "outline"} 
-                    size="sm" 
-                    onClick={() => setCategory(cat)}
-                    className="text-xs py-0 h-6"
-                  >
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </Button>
-                ))}
-              </div>
-              {currentFact}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+    <div className="fixed top-16 right-6 z-50">
+      <Button 
+        variant="outline" 
+        onClick={generateFact} 
+        className="flex items-center bg-background/80 backdrop-blur-sm hover:bg-background"
+        size="sm"
+      >
+        <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
+        <span>Did You Know?</span>
+      </Button>
+      
+      {isVisible && currentFact && (
+        <Card className="absolute right-0 mt-2 w-80 animate-fade-in">
+          <CardContent className="pt-3 text-sm">
+            <div className="flex gap-2 mb-2 flex-wrap">
+              {(["health", "medicine", "science", "history", "joke"] as FactCategory[]).map((cat) => (
+                <Button 
+                  key={cat} 
+                  variant={category === cat ? "default" : "outline"} 
+                  size="sm" 
+                  onClick={() => setCategory(cat)}
+                  className="text-xs py-0 h-6"
+                >
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </Button>
+              ))}
+            </div>
+            {currentFact}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

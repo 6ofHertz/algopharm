@@ -1,13 +1,16 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from "sonner";
 
 export interface ShiftData {
   startTime: Date | null;
   isActive: boolean;
   duration: string;
+  seconds: number;
 }
 
 interface ShiftTrackerProps {
@@ -18,7 +21,8 @@ export const ShiftTracker: React.FC<ShiftTrackerProps> = ({ onShiftChange }) => 
   const { user } = useAuth();
   const [shiftStarted, setShiftStarted] = useState(false);
   const [shiftStartTime, setShiftStartTime] = useState<Date | null>(null);
-  const [duration, setDuration] = useState("0h 0m");
+  const [duration, setDuration] = useState("0h 0m 0s");
+  const [seconds, setSeconds] = useState(0);
   
   // Auto-start shift when user logs in
   useEffect(() => {
@@ -27,70 +31,69 @@ export const ShiftTracker: React.FC<ShiftTrackerProps> = ({ onShiftChange }) => 
     }
   }, [user]);
   
-  // Calculate shift duration
+  // Calculate shift duration with real-time seconds
   useEffect(() => {
     if (shiftStarted && shiftStartTime) {
       const interval = setInterval(() => {
         const diffMs = new Date().getTime() - shiftStartTime.getTime();
         const hours = Math.floor(diffMs / (1000 * 60 * 60));
         const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const newDuration = `${hours}h ${minutes}m`;
+        const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
+        const totalSeconds = Math.floor(diffMs / 1000);
+        
+        setSeconds(totalSeconds);
+        const newDuration = `${hours}h ${minutes}m ${secs}s`;
         setDuration(newDuration);
         
         if (onShiftChange) {
           onShiftChange({
             startTime: shiftStartTime,
             isActive: shiftStarted,
-            duration: newDuration
+            duration: newDuration,
+            seconds: totalSeconds
           });
         }
-      }, 60000); // Update every minute
+      }, 1000); // Update every second for real-time counting
       
       return () => clearInterval(interval);
     }
-  }, [shiftStarted, shiftStartTime]);
+  }, [shiftStarted, shiftStartTime, onShiftChange]);
   
   const startShift = () => {
     const now = new Date();
     setShiftStarted(true);
     setShiftStartTime(now);
+    toast.success("Your shift has started");
     
     if (onShiftChange) {
       onShiftChange({
         startTime: now,
         isActive: true,
-        duration: "0h 0m"
+        duration: "0h 0m 0s",
+        seconds: 0
       });
     }
   };
 
   const endShift = () => {
     setShiftStarted(false);
+    toast.info(`Shift ended. Total duration: ${duration}`);
     
     if (onShiftChange) {
       onShiftChange({
         startTime: null,
         isActive: false,
-        duration
+        duration,
+        seconds
       });
     }
     
     // Keep the last duration visible
     setTimeout(() => {
       setShiftStartTime(null);
-      setDuration("0h 0m");
+      setDuration("0h 0m 0s");
+      setSeconds(0);
     }, 5000);
-  };
-
-  // Get current shift duration
-  const getShiftDuration = () => {
-    if (!shiftStartTime) return "0h 0m";
-    
-    const diffMs = new Date().getTime() - shiftStartTime.getTime();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    
-    return `${hours}h ${minutes}m`;
   };
   
   return (
@@ -104,7 +107,7 @@ export const ShiftTracker: React.FC<ShiftTrackerProps> = ({ onShiftChange }) => 
             {shiftStarted ? (
               <>
                 <Clock className="mr-2 h-5 w-5 text-green-500" />
-                <span className="animate-fade-in">{getShiftDuration()}</span>
+                <span className="animate-fade-in">{duration}</span>
               </>
             ) : (
               <>

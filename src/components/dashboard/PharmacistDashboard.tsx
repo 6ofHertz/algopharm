@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { ExpiringMedications } from "./ExpiringMedications";
 import { OverviewChart } from "./OverviewChart";
-import { FactGenerator } from "@/components/common/FactGenerator";
 import { UserInfoBar } from "../common/UserInfoBar";
 
 export const PharmacistDashboard = () => {
@@ -25,7 +23,6 @@ export const PharmacistDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold">Pharmacist Dashboard</h2>
-        <FactGenerator />
       </div>
       
       {/* Alert Cards */}
