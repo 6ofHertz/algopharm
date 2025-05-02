@@ -1,12 +1,11 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   BarChart, 
-  Calendar, 
-  Clock, 
+  Calendar,
   CreditCard, 
   Printer, 
   Search, 
@@ -17,71 +16,23 @@ import { useNavigate } from "react-router-dom";
 import { RecentSales } from "./RecentSales";
 import { TopSellingItems } from "./TopSellingItems";
 import { FactGenerator } from "@/components/common/FactGenerator";
+import { ShiftTracker } from "./cashier/ShiftTracker";
+import { AccountingFeatures } from "./cashier/AccountingFeatures";
+import { UserInfoBar } from "../common/UserInfoBar";
 
 export const CashierDashboard = () => {
   const navigate = useNavigate();
-  const [shiftStarted, setShiftStarted] = useState(false);
-  const [shiftStartTime, setShiftStartTime] = useState<Date | null>(null);
-
-  const startShift = () => {
-    setShiftStarted(true);
-    setShiftStartTime(new Date());
-  };
-
-  const endShift = () => {
-    setShiftStarted(false);
-    setShiftStartTime(null);
-  };
-
-  // Calculate shift duration
-  const getShiftDuration = () => {
-    if (!shiftStartTime) return "0h 0m";
-    
-    const diffMs = new Date().getTime() - shiftStartTime.getTime();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    
-    return `${hours}h ${minutes}m`;
-  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold">Cashier Dashboard</h2>
+        <h2 className="text-3xl font-bold animate-fade-in">Cashier Dashboard</h2>
         <FactGenerator />
       </div>
       
       {/* Quick Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className={`${shiftStarted ? "border-green-500 dark:border-green-700" : ""}`}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Shift Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-start gap-3">
-              <div className="flex items-center text-2xl font-bold">
-                {shiftStarted ? (
-                  <>
-                    <Clock className="mr-2 h-5 w-5 text-green-500" />
-                    <span>{getShiftDuration()}</span>
-                  </>
-                ) : (
-                  <>
-                    <Clock className="mr-2 h-5 w-5 text-gray-400" />
-                    <span>Not Started</span>
-                  </>
-                )}
-              </div>
-              <Button 
-                className="w-full" 
-                variant={shiftStarted ? "destructive" : "default"}
-                onClick={shiftStarted ? endShift : startShift}
-              >
-                {shiftStarted ? "End Shift" : "Start Shift"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <ShiftTracker />
         
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => navigate("/pos")}>
           <CardHeader className="pb-2">
@@ -135,6 +86,7 @@ export const CashierDashboard = () => {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="accounting">Accounting</TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-4">
@@ -253,7 +205,13 @@ export const CashierDashboard = () => {
             </CardContent>
           </Card>
         </TabsContent>
+        
+        <TabsContent value="accounting">
+          <AccountingFeatures />
+        </TabsContent>
       </Tabs>
+      
+      <UserInfoBar />
     </div>
   );
 };

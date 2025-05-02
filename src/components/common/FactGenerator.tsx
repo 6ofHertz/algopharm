@@ -1,8 +1,8 @@
 
-import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, ArrowRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 type FactCategory = "health" | "medicine" | "science" | "history" | "joke";
 
@@ -47,15 +47,35 @@ const facts: Record<FactCategory, string[]> = {
 export const FactGenerator: React.FC = () => {
   const [currentFact, setCurrentFact] = useState<string>("");
   const [category, setCategory] = useState<FactCategory>("health");
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const timeoutRef = useRef<number | null>(null);
 
   const generateFact = () => {
     const categoryFacts = facts[category];
     const randomIndex = Math.floor(Math.random() * categoryFacts.length);
     setCurrentFact(categoryFacts[randomIndex]);
+    
+    // Show the fact card
+    setIsVisible(true);
+    
+    // Set timeout to hide the fact card after 3.5 seconds
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = window.setTimeout(() => {
+      setIsVisible(false);
+    }, 3500);
   };
 
   useEffect(() => {
     generateFact();
+    
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
   }, [category]);
 
   return (
@@ -67,10 +87,10 @@ export const FactGenerator: React.FC = () => {
           <ArrowRight className="h-3 w-3" />
         </Button>
         
-        {currentFact && (
-          <Card className="absolute right-0 mt-2 w-80 z-50">
+        {isVisible && currentFact && (
+          <Card className="absolute right-0 mt-2 w-80 z-50 animate-fade-in">
             <CardContent className="pt-3 text-sm">
-              <div className="flex gap-2 mb-2">
+              <div className="flex gap-2 mb-2 flex-wrap">
                 {(["health", "medicine", "science", "history", "joke"] as FactCategory[]).map((cat) => (
                   <Button 
                     key={cat} 

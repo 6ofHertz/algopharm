@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,6 @@ import {
   AlertTriangle, 
   Calendar, 
   FileText, 
-  Flask, 
   LayoutGrid, 
   PenTool, 
   Search, 
@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { ExpiringMedications } from "./ExpiringMedications";
 import { OverviewChart } from "./OverviewChart";
 import { FactGenerator } from "@/components/common/FactGenerator";
+import { UserInfoBar } from "../common/UserInfoBar";
 
 export const PharmacistDashboard = () => {
   const navigate = useNavigate();
@@ -294,6 +295,8 @@ export const PharmacistDashboard = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <UserInfoBar />
     </div>
   );
 };
