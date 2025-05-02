@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -134,7 +133,7 @@ export const PharmacistDashboard = () => {
                   <span>New Prescription</span>
                 </Button>
                 <Button className="flex flex-col h-24 py-2" variant="outline">
-                  <Flask className="h-5 w-5 mb-2" />
+                  <FileText className="h-5 w-5 mb-2" />
                   <span>Drug Interactions</span>
                 </Button>
                 <Button className="flex flex-col h-24 py-2" variant="outline">

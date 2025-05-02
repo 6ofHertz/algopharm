@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,8 @@ import {
   PieChart,
   UserPlus,
   FileText,
-  CalendarDays
+  CalendarDays,
+  AlertTriangle
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -613,7 +613,7 @@ export const AdminDashboard = () => {
                   
                   <Button className="w-full" variant="outline">
                     <History className="h-4 w-4 mr-2" />
-                    View Historical Anomalies
+                    <span>View Historical Anomalies</span>
                   </Button>
                 </div>
               </CardContent>
