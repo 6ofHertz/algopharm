@@ -10,12 +10,13 @@ import { MedicationInfoCard } from "@/components/pos/MedicationInfoCard";
 import { PaymentSummary } from "@/components/pos/PaymentSummary";
 import { InteractionAlert } from "@/components/pos/InteractionAlert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { CalendarIcon, Printer, Receipt } from "lucide-react";
+import { CalendarIcon, Printer, Receipt, AlertTriangle } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { MultiPayment, Payment } from "@/components/pos/MultiPayment";
 
 export interface Medication {
   id: string;
@@ -47,6 +48,7 @@ const POS = () => {
   const [showInteractionAlert, setShowInteractionAlert] = useState(false);
   const [interactionDetails, setInteractionDetails] = useState<string[]>([]);
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     name: "",
     phone: "",
@@ -54,6 +56,7 @@ const POS = () => {
     insuranceNumber: ""
   });
   const [receiptDate, setReceiptDate] = useState<Date>(new Date());
+  const [paymentMethods, setPaymentMethods] = useState<Payment[]>([]);
   
   // Sample medication database
   const medicationDatabase: Medication[] = [
@@ -233,6 +236,12 @@ const POS = () => {
       toast.error("Cart is empty");
       return;
     }
+    setShowPaymentDialog(true);
+  };
+  
+  const handlePaymentComplete = (payments: Payment[]) => {
+    setPaymentMethods(payments);
+    setShowPaymentDialog(false);
     setShowReceiptDialog(true);
   };
   
@@ -244,19 +253,42 @@ const POS = () => {
       date: receiptDate,
       subtotal: calculateSubtotal(),
       tax: calculateTax(),
-      total: calculateTotal()
+      total: calculateTotal(),
+      payments: paymentMethods
     });
     
     toast.success("Transaction completed successfully!");
     setShowReceiptDialog(false);
     setCartItems([]);
     setScannedMedication(null);
+    setPaymentMethods([]);
     setCustomerInfo({
       name: "",
       phone: "",
       insuranceProvider: "",
       insuranceNumber: ""
     });
+  };
+
+  // Function to show payment status in receipt dialog
+  const renderPaymentMethodSummary = () => {
+    if (paymentMethods.length === 0) return "Cash";
+    
+    if (paymentMethods.length === 1) {
+      const method = paymentMethods[0].method;
+      return method.charAt(0).toUpperCase() + method.slice(1);
+    }
+    
+    return (
+      <div className="space-y-1">
+        {paymentMethods.map((payment, index) => (
+          <div key={index} className="flex justify-between text-xs">
+            <span>{payment.method.charAt(0).toUpperCase() + payment.method.slice(1)}:</span>
+            <span>${payment.amount.toFixed(2)}</span>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -402,6 +434,16 @@ const POS = () => {
         />
       )}
       
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="max-w-md">
+          <MultiPayment
+            total={calculateTotal()}
+            onComplete={handlePaymentComplete}
+            onCancel={() => setShowPaymentDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+      
       <Dialog open={showReceiptDialog} onOpenChange={setShowReceiptDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -431,24 +473,26 @@ const POS = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label htmlFor="insurance" className="text-sm font-medium">Insurance Provider</label>
-                <Input 
-                  id="insurance" 
-                  value={customerInfo.insuranceProvider}
-                  onChange={e => setCustomerInfo({...customerInfo, insuranceProvider: e.target.value})}
-                />
+            {paymentMethods.some(p => p.method === 'insurance') && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="insurance" className="text-sm font-medium">Insurance Provider</label>
+                  <Input 
+                    id="insurance" 
+                    value={customerInfo.insuranceProvider}
+                    onChange={e => setCustomerInfo({...customerInfo, insuranceProvider: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="insuranceNumber" className="text-sm font-medium">Insurance Number</label>
+                  <Input 
+                    id="insuranceNumber" 
+                    value={customerInfo.insuranceNumber}
+                    onChange={e => setCustomerInfo({...customerInfo, insuranceNumber: e.target.value})}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <label htmlFor="insuranceNumber" className="text-sm font-medium">Insurance Number</label>
-                <Input 
-                  id="insuranceNumber" 
-                  value={customerInfo.insuranceNumber}
-                  onChange={e => setCustomerInfo({...customerInfo, insuranceNumber: e.target.value})}
-                />
-              </div>
-            </div>
+            )}
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Receipt Date</label>
@@ -488,12 +532,30 @@ const POS = () => {
                   <span>VAT/Tax (8%):</span>
                   <span>${calculateTax().toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm font-medium">
+                <div className="flex justify-between text-sm">
+                  <span>Payment Method:</span>
+                  <span>{renderPaymentMethodSummary()}</span>
+                </div>
+                <div className="flex justify-between text-sm font-medium pt-1 border-t mt-1">
                   <span>Total:</span>
                   <span>${calculateTotal().toFixed(2)}</span>
                 </div>
               </div>
             </div>
+            
+            {paymentMethods.some(p => p.method === 'mpesa') && (
+              <div className="bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-900/30 rounded-md p-3">
+                <div className="flex items-start">
+                  <AlertTriangle className="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
+                  <div className="text-sm">
+                    <p className="font-medium text-green-800 dark:text-green-300">M-PESA Transaction</p>
+                    <p className="text-green-700 dark:text-green-400 mt-0.5">
+                      The customer will receive an STK push notification to complete payment.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter className="flex space-x-2 justify-end">
             <Button variant="outline" onClick={() => setShowReceiptDialog(false)}>
