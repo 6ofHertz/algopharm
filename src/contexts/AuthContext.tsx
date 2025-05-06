@@ -3,6 +3,12 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 
 export type UserRole = "cashier" | "pharmacist" | "admin";
 
+interface Shift {
+  user: User;
+  startTime: Date;
+  endTime: Date | null;
+}
+
 interface User {
   id: string;
   name: string;
@@ -11,12 +17,15 @@ interface User {
   employeeId: string;
 }
 
-interface AuthContextType {
+interface AuthContextType extends ShiftContextType{
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   hasRole: (role: UserRole | UserRole[]) => boolean;
+}
+interface ShiftContextType {
+  currentShift: Shift | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,9 +37,25 @@ export const useAuth = () => {
   }
   return context;
 };
+export const useShift = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useShift must be used within an AuthProvider");
+  }
+  return {
+    currentShift: context.currentShift,
+  };
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // In a real app, this would come from a backend API/localStorage
+    // In a real app, this would come from a backend API/localStorage
+  const [currentShift, setCurrentShift] = useState<Shift | null>(null);
+  const startShift = (user: User) => {
+    setCurrentShift({ user, startTime: new Date(), endTime: null });
+  };
+  const endShift = () => {
+    setCurrentShift((prev) => (prev ? { ...prev, endTime: new Date() } : null));
+  };
   const [user, setUser] = useState<User | null>(null);
 
   // Mock users for demo purposes
@@ -65,11 +90,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const mockUser = mockUsers[email as keyof typeof mockUsers];
         if (mockUser && password === "password") {
           setUser(mockUser);
+          startShift(mockUser);
           resolve();
         } else {
           reject(new Error("Invalid email or password"));
         }
       }, 500);
+      
     });
   };
 
@@ -87,12 +114,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return user.role === roleCheck;
   };
 
+
   return (
     <AuthContext.Provider
       value={{
         user,
         login,
         logout,
+        currentShift,
+        
         isAuthenticated: !!user,
         hasRole,
       }}

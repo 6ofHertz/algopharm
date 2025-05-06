@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardLayout from '@/features/Layout/DashboardLayout';
+import DashboardLayout from '@/features/layout/DashboardLayout';
 import SettingsComponent from '@/features/Dashboard/Settings';
 
 const SettingsPage = () => {
