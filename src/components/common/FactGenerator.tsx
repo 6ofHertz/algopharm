@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Lightbulb } from "lucide-react";
+import { Lightbulb, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 export const FactGenerator = () => {
   const [fact, setFact] = useState("");
   const [showFact, setShowFact] = useState(false);
+  const [currentFactIndex, setCurrentFactIndex] = useState(0);
   
   const facts = [
     "Taking medication with grapefruit juice can increase the absorption of certain drugs, potentially leading to overdose.",
@@ -25,14 +26,22 @@ export const FactGenerator = () => {
   ];
   
   const generateFact = () => {
-    const randomFact = facts[Math.floor(Math.random() * facts.length)];
-    setFact(randomFact);
+    setFact(facts[currentFactIndex]);
     setShowFact(true);
-    
-    // Hide fact after 3.5 seconds
-    setTimeout(() => {
-      setShowFact(false);
-    }, 3500);
+  };
+
+  const nextFact = () => {
+    const nextIndex = (currentFactIndex + 1) % facts.length;
+    setCurrentFactIndex(nextIndex);
+    setFact(facts[nextIndex]);
+    setShowFact(true);
+  };
+  
+  const previousFact = () => {
+    const prevIndex = (currentFactIndex - 1 + facts.length) % facts.length;
+    setCurrentFactIndex(prevIndex);
+    setFact(facts[prevIndex]);
+    setShowFact(true);
   };
   
   return (
@@ -49,10 +58,19 @@ export const FactGenerator = () => {
       
       {showFact && (
         <div 
-          className="absolute top-12 right-0 w-64 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-border animate-fade-in"
-          onAnimationEnd={() => !showFact && setFact("")}
+          className="absolute top-12 right-0 w-64 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-border"
         >
-          <p className="text-sm">{fact}</p>
+          <p className="text-sm mb-2">{fact}</p>
+          <div className="flex justify-between mt-2">
+            <Button size="sm" variant="ghost" onClick={previousFact}>
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <Button size="sm" variant="ghost" onClick={nextFact}>
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       )}
     </div>

@@ -17,6 +17,7 @@ import POS from "./pages/POS";
 import Settings from "./pages/Settings";
 import Accounting from "./pages/Accounting";
 import NotFound from "./pages/NotFound";
+import Register from "./pages/Register";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             
             {/* Protected dashboard routes */}
             <Route element={<ProtectedRoute />}>

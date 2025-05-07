@@ -82,7 +82,7 @@ export const LoginForm = () => {
                 size="sm"
                 onClick={() => {
                   setEmail("cashier@apothekepro.com");
-                  setPassword("password");
+                  setPassword("password123");
                 }}
               >
                 Cashier
@@ -92,8 +92,8 @@ export const LoginForm = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setEmail("pharmacist@apothekepro.com");
-                  setPassword("password");
+                  setEmail("pharma@apothekepro.com");
+                  setPassword("password123");
                 }}
               >
                 Pharmacist
@@ -104,7 +104,7 @@ export const LoginForm = () => {
                 size="sm"
                 onClick={() => {
                   setEmail("admin@apothekepro.com");
-                  setPassword("password");
+                  setPassword("password123");
                 }}
               >
                 Admin

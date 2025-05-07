@@ -15,6 +15,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   isAuthenticated: boolean;
   hasRole: (role: UserRole | UserRole[]) => boolean;
 }
@@ -31,16 +32,20 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // In a real app, this would come from a backend API/localStorage
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-  // Mock users for demo purposes - updated to match the Login component emails
-  const mockUsers = {
+  // Mock users for demo purposes 
+  const [mockUsers, setMockUsers] = useState({
     "cashier@apothekepro.com": {
       id: "usr_001",
       name: "John Doe",
       email: "cashier@apothekepro.com",
       role: "cashier" as UserRole,
       employeeId: "CSH-001",
+      password: "password123"
     },
     "pharma@apothekepro.com": {
       id: "usr_002",
@@ -48,6 +53,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       email: "pharma@apothekepro.com",
       role: "pharmacist" as UserRole,
       employeeId: "PHR-001",
+      password: "password123"
     },
     "admin@apothekepro.com": {
       id: "usr_003",
@@ -55,16 +61,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       email: "admin@apothekepro.com",
       role: "admin" as UserRole,
       employeeId: "ADM-001",
+      password: "password123"
     },
-  };
+  });
 
   const login = async (email: string, password: string) => {
     // This would normally validate against a backend API
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
         const mockUser = mockUsers[email as keyof typeof mockUsers];
-        if (mockUser && password === "password123") {
-          setUser(mockUser);
+        if (mockUser && mockUser.password === password) {
+          const userData = { ...mockUser };
+          delete userData.password;
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
           resolve();
         } else {
           reject(new Error("Invalid email or password"));
@@ -73,8 +83,47 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
+  const register = async (name: string, email: string, password: string, role: UserRole) => {
+    return new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        if (mockUsers[email as keyof typeof mockUsers]) {
+          reject(new Error("Email already exists"));
+          return;
+        }
+
+        // Generate a unique ID and employee ID based on role
+        const id = `usr_${Math.floor(1000 + Math.random() * 9000)}`;
+        const rolePrefix = role === 'cashier' ? 'CSH' : role === 'pharmacist' ? 'PHR' : 'ADM';
+        const employeeId = `${rolePrefix}-${Math.floor(100 + Math.random() * 900)}`;
+        
+        const newUser = {
+          id,
+          name,
+          email,
+          role,
+          employeeId,
+          password
+        };
+        
+        // Add user to mock database
+        setMockUsers(prev => ({
+          ...prev,
+          [email]: newUser
+        }));
+        
+        // Log in the new user
+        const userData = { ...newUser };
+        delete userData.password;
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+        resolve();
+      }, 500);
+    });
+  };
+
   const logout = () => {
     setUser(null);
+    localStorage.removeItem("user");
   };
 
   const hasRole = (roleCheck: UserRole | UserRole[]) => {
@@ -93,6 +142,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         user,
         login,
         logout,
+        register,
         isAuthenticated: !!user,
         hasRole,
       }}
