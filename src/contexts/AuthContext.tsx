@@ -33,26 +33,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // In a real app, this would come from a backend API/localStorage
   const [user, setUser] = useState<User | null>(null);
 
-  // Mock users for demo purposes
+  // Mock users for demo purposes - updated to match the Login component emails
   const mockUsers = {
-    "cashier@algopharm.com": {
+    "cashier@apothekepro.com": {
       id: "usr_001",
       name: "John Doe",
-      email: "cashier@algopharm.com",
+      email: "cashier@apothekepro.com",
       role: "cashier" as UserRole,
       employeeId: "CSH-001",
     },
-    "pharmacist@algopharm.com": {
+    "pharma@apothekepro.com": {
       id: "usr_002",
       name: "Dr. Sarah Johnson",
-      email: "pharmacist@algopharm.com",
+      email: "pharma@apothekepro.com",
       role: "pharmacist" as UserRole,
       employeeId: "PHR-001",
     },
-    "admin@algopharm.com": {
+    "admin@apothekepro.com": {
       id: "usr_003",
       name: "Alex Smith",
-      email: "admin@algopharm.com",
+      email: "admin@apothekepro.com",
       role: "admin" as UserRole,
       employeeId: "ADM-001",
     },
@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
         const mockUser = mockUsers[email as keyof typeof mockUsers];
-        if (mockUser && password === "password") {
+        if (mockUser && password === "password123") {
           setUser(mockUser);
           resolve();
         } else {

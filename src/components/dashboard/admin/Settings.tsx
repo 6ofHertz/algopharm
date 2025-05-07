@@ -1,23 +1,38 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import { toast } from "sonner";
 
 export const SystemSettings = () => {
-  const [pharmacyName, setPharmacyName] = useState("APOTHEKE Pro");
+  const [pharmacyName, setPharmacyName] = useState(() => {
+    return localStorage.getItem("pharmacyName") || "APOTHEKE Pro";
+  });
   const [isUpdating, setIsUpdating] = useState(false);
   
+  useEffect(() => {
+    // Set initial document title
+    document.title = pharmacyName;
+  }, []);
+  
   const updatePharmacyName = () => {
+    if (!pharmacyName.trim()) {
+      toast.error("Pharmacy name cannot be empty");
+      return;
+    }
+    
     setIsUpdating(true);
     
     // Simulate API call with timeout
     setTimeout(() => {
-      // In a real app, this would be a call to update the name in the database
+      // Update document title
       document.title = pharmacyName;
       
-      // Update any instances of the name in localStorage for persistence
+      // Store in localStorage for persistence
       localStorage.setItem("pharmacyName", pharmacyName);
+      
+      // This would typically update a central state or context in a real app
+      // For now we're using localStorage as a simple state management solution
       
       toast.success(`Pharmacy name updated to "${pharmacyName}"`);
       setIsUpdating(false);
