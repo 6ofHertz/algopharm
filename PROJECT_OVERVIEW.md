@@ -1,7 +1,7 @@
 
-# PillPulse - Modern Pharmacy POS System
+# Apotheke - Modern Pharmacy POS System
 
-PillPulse is a revolutionary Point of Sale (POS) system designed specifically for the unique needs of modern pharmacies. From small independent pharmacists to large multi-location chains, PillPulse streamlines operations with an intuitive interface and powerful features.
+Apotheke is a revolutionary Point of Sale (POS) system designed specifically for the unique needs of modern pharmacies. From small independent pharmacists to large multi-location chains, Apotheke streamlines operations with an intuitive interface and powerful features.
 
 ## 🌟 Project Journey
 
@@ -17,7 +17,7 @@ Traditional pharmacy management systems are often cumbersome, outdated, and fail
 
 ### Our Solution
 
-PillPulse addresses these challenges with a modern, responsive web application built on React and TypeScript. The system features:
+Apotheke addresses these challenges with a modern, responsive web application built on React and TypeScript. The system features:
 
 1. **Barcode-Driven Workflow**: Instantly retrieve medication details by scanning, with fallback manual search for non-barcoded items
 
@@ -52,7 +52,7 @@ PillPulse addresses these challenges with a modern, responsive web application b
 
 ## 🛠️ Technical Implementation
 
-PillPulse is built using modern web technologies:
+Apotheke is built using modern web technologies:
 
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS, ShadCN UI
 - **State Management**: React Query, Context API
@@ -61,7 +61,7 @@ PillPulse is built using modern web technologies:
 
 ## 🚀 Future Development
 
-PillPulse continues to evolve with planned features:
+Apotheke continues to evolve with planned features:
 
 - Complete backend integration with robust API
 - Mobile companion app for inventory management
@@ -71,6 +71,6 @@ PillPulse continues to evolve with planned features:
 
 ---
 
-PillPulse represents the next generation of pharmacy management systems - combining ease of use, powerful features, and modern design to create an experience that helps pharmacies serve their customers better while optimizing their business operations.
+Apotheke represents the next generation of pharmacy management systems - combining ease of use, powerful features, and modern design to create an experience that helps pharmacies serve their customers better while optimizing their business operations.
 
-© 2025 PillPulse. All Rights Reserved.
+© 2025 Apotheke. All Rights Reserved.

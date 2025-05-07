@@ -1,7 +1,7 @@
 
-# AlgoPharm (PillPulse) - Comprehensive Pharmacy Management System
+# AlgoPharm (Apotheke) - Comprehensive Pharmacy Management System
 
-Welcome to AlgoPharm (PillPulse) - a modern pharmacy management system designed to optimize inventory management, streamline sales, and improve financial tracking for pharmacies of any size. This document provides detailed instructions for using and extending the system.
+Welcome to AlgoPharm (Apotheke) - a modern pharmacy management system designed to optimize inventory management, streamline sales, and improve financial tracking for pharmacies of any size. This document provides detailed instructions for using and extending the system.
 
 ## Table of Contents
 - [Component Overview](#component-overview)

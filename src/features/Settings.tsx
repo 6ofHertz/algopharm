@@ -70,7 +70,7 @@ const SettingsPage = () => {
                     </Label>
                     <Input
                       id="pharmacy_name"
-                      defaultValue="PillPulse Pharmacy"
+                      defaultValue="Apotheke Pharmacy"
                       className="col-span-3"
                     />
                   </div>
@@ -100,7 +100,7 @@ const SettingsPage = () => {
                     </Label>
                     <Input
                       id="email"
-                      defaultValue="contact@pillpulse.com"
+                      defaultValue="contact@Apotheke.com"
                       className="col-span-3"
                     />
                   </div>

@@ -1,9 +1,9 @@
 
-# PillPulse - Technical Documentation
+# Apotheke - Technical Documentation
 
 ## System Architecture
 
-PillPulse is built using a modern frontend architecture with React and TypeScript, designed to be paired with a scalable backend system. This document outlines the technical aspects of the application, its components, and integration points.
+Apotheke is built using a modern frontend architecture with React and TypeScript, designed to be paired with a scalable backend system. This document outlines the technical aspects of the application, its components, and integration points.
 
 ### Architecture Overview
 
@@ -61,7 +61,7 @@ src/
 
 ## State Management
 
-PillPulse uses React's built-in state management with Context API for application-wide state like themes and user authentication. For server state, it leverages Tanstack Query (React Query) for efficient data fetching, caching, and synchronization.
+Apotheke uses React's built-in state management with Context API for application-wide state like themes and user authentication. For server state, it leverages Tanstack Query (React Query) for efficient data fetching, caching, and synchronization.
 
 ### Key State Components:
 
@@ -171,7 +171,7 @@ Access control is enforced at both the frontend and backend:
 
 ## AI Integration
 
-PillPulse integrates AI capabilities in several areas:
+Apotheke integrates AI capabilities in several areas:
 
 1. **Natural Language Queries**: Using OpenAI's GPT-4 for analyzing sales data
 2. **Drug Interaction Detection**: Using a medical knowledge base to flag potential interactions
@@ -180,7 +180,7 @@ PillPulse integrates AI capabilities in several areas:
 
 ## Offline Capabilities
 
-As a pharmacy system, PillPulse is designed to function even during internet outages:
+As a pharmacy system, Apotheke is designed to function even during internet outages:
 
 1. **Progressive Web App**: Service workers for offline access
 2. **Local Storage**: IndexedDB for transaction caching
@@ -240,4 +240,4 @@ The system is designed with extensibility in mind:
 
 ---
 
-This technical documentation provides an overview of PillPulse's architecture and implementation. For detailed API references and component documentation, please refer to the specific documentation files in the project repository.
+This technical documentation provides an overview of Apotheke's architecture and implementation. For detailed API references and component documentation, please refer to the specific documentation files in the project repository.
