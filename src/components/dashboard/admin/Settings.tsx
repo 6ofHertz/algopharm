@@ -2,9 +2,27 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
+import { toast } from "sonner";
 
 export const SystemSettings = () => {
   const [pharmacyName, setPharmacyName] = useState("APOTHEKE Pro");
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+  const updatePharmacyName = () => {
+    setIsUpdating(true);
+    
+    // Simulate API call with timeout
+    setTimeout(() => {
+      // In a real app, this would be a call to update the name in the database
+      document.title = pharmacyName;
+      
+      // Update any instances of the name in localStorage for persistence
+      localStorage.setItem("pharmacyName", pharmacyName);
+      
+      toast.success(`Pharmacy name updated to "${pharmacyName}"`);
+      setIsUpdating(false);
+    }, 800);
+  };
   
   return (
     <div className="space-y-4">
@@ -16,7 +34,13 @@ export const SystemSettings = () => {
             value={pharmacyName}
             onChange={(e) => setPharmacyName(e.target.value)}
           />
-          <Button className="shrink-0">Update</Button>
+          <Button 
+            className="shrink-0" 
+            onClick={updatePharmacyName} 
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Updating..." : "Update"}
+          </Button>
         </div>
       </div>
       
