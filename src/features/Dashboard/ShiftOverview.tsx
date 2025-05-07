@@ -25,7 +25,7 @@ const mockShifts: Shift[] = [
   { user: 'User 5', startTime: '12:00', endTime: '20:00' },
 ];
 
-const AdminDashboard: React.FC = () => {
+const ShiftOverview: React.FC = () => {
   const totalShifts = mockShifts.length;
   const averageShiftDuration = '8 hours';
 
@@ -120,4 +120,4 @@ return (
 );
 };
 
-export default AdminDashboard;
+export default ShiftOverview;

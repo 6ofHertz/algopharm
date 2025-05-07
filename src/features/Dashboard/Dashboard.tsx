@@ -1,11 +1,8 @@
 import React from 'react';
+import { RoleDashboard } from './RoleDashboard';
 
 const Dashboard: React.FC = () => {
-  return (
-    <div>
-      <h1>Dashboard Page</h1>
-    </div>
-  );
+  return <RoleDashboard />;
 };
 
 export default Dashboard;

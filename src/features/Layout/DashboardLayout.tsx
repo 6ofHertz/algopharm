@@ -1,18 +1,20 @@
 
 import React, { useState, useEffect, type ComponentType } from "react";
 import { Outlet } from "react-router-dom";
+<<<<<<< HEAD:src/features/Layout/DashboardLayout.tsx
 import { Sidebar, SidebarProvider, SidebarTrigger } from "@/features/UI/sidebar";
-import { Barcode, Calendar, LayoutDashboard, Search, Settings, Clock } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/features/UI/avatar";
 import { Button } from "@/features/UI/button";
 import { Separator } from "@/features/UI/separator";
-import UserMenu from "@/features/layout/UserMenu";
+import { Barcode, Calendar, LayoutDashboard, Search, Settings, Clock, LogOut, User } from "lucide-react";
+>>>>>>> origin/main:src/components/layout/DashboardLayout.tsx
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/features/Theme/theme-toggle";
 import { Badge } from "@/features/UI/badge";
 import { cn } from "@/features/lib/utils";
 import { useIsMobile } from "@/features/hooks/use-mobile";
 import AnalogClock from "@/features/Layout/AnalogClock";
+import UserMenu from "@/features/layout/UserMenu";
 
 
 interface DashboardLayoutProps {
@@ -20,15 +22,16 @@ interface DashboardLayoutProps {
 }
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("dashboard");
-  const [currentTime, setCurrentTime] = useState(new Date());
   const isMobile = useIsMobile();
   const [user, setUser] = useState({
+<<<<<<< HEAD:src/features/Layout/DashboardLayout.tsx
     name: "Dr. Sarah Johnson",
     role: "Pharmacist",
     initials: "SJ",
     id: "PHR-001",
   });
 
+<<<<<<< HEAD:src/features/Layout/DashboardLayout.tsx
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   // Update clock every minute
@@ -40,6 +43,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     return () => clearInterval(timer);
   }, []);
 
+=======
+
+>>>>>>> origin/main:src/components/layout/DashboardLayout.tsx
+=======
+>>>>>>> origin/main:src/components/layout/DashboardLayout.tsx
   const navigation = [
     {
       id: "dashboard",
@@ -135,6 +143,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 {navigation.find((item) => item.id === activeItem)?.name || "AlgoPharm"}
               </h1>
             </div>
+<<<<<<< HEAD:src/features/Layout/DashboardLayout.tsx
             <div className="flex items-center gap-3 mr-4">
               <div className="flex items-center border rounded-full px-3 py-1 bg-card text-sm" >
                 <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -143,12 +152,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 </span>
               </div>
             </div>
+=======
+>>>>>>> origin/main:src/components/layout/DashboardLayout.tsx
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <Button variant="outline" size="icon" onClick={handleSearch}>
                 <Search className="h-5 w-5" />
                 <span className="sr-only">Search</span>
               </Button>
+<<<<<<< HEAD:src/features/Layout/DashboardLayout.tsx
               <div className="flex items-center gap-2">
                 <div className="text-right hidden sm:block">
                   <div className="text-sm font-medium">{user.name}</div>
@@ -163,6 +175,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   <AvatarFallback>{user.initials}</AvatarFallback>
                 </Avatar>
               </div>
+=======
+>>>>>>> origin/main:src/components/layout/DashboardLayout.tsx
             </div>
           </header>
           <main className="flex-1 overflow-y-auto p-6">

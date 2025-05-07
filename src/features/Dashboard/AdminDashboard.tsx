@@ -1,72 +1,33 @@
 
-import React, { useState, useEffect } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/features/UI/card';
-import { Button } from '@/features/UI/button';
-import {
-  Users,
-  Settings,
-  BarChart,
-  Package,
+import React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { 
+  Users, 
+  Settings, 
+  BarChart, 
+  Package, 
   Shield,
   Download,
-  History,
-  User,
   Upload,
+  History,
+  User
 } from "lucide-react";
-import TimeClockHistory from './TimeClockHistory'; // Import the TimeClockHistory component
-import { AskAI } from '@/features/Dashboard/AskAI';
-import ShiftOverview from '@/features/Dashboard/ShiftOverview';
-import { UserPerformance } from '@/features/Dashboard/UserPerformance';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/UI/tabs';
-import { useAuth } from '@/features/Auth/AuthContext';
+import { AIAnalytics } from "@/components/dashboard/admin/AIAnalytics";
+import { PerformanceMetrics } from "@/components/dashboard/admin/PerformanceMetrics";
+import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AskAI from "@/features/AskAI/AskAI.tsx";
+import ShiftOverview from "./ShiftOverview";
 
 export const AdminDashboard = () => {
-  const { user } = useAuth();
-  const [isClockedIn, setIsClockedIn] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      const timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]') as any[];
-      const lastEntry = timeEntries
-        .filter(entry => entry.userId === user.id)
-        .pop();
-      if (lastEntry && !lastEntry.clockOutTime) {
-        setIsClockedIn(true);
-      } else {
-        setIsClockedIn(false);
-      }
-    }
-  }, [user]);
-
-  const handleClockIn = () => {
-    if (user) {
-      const timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]') as any[];
-      timeEntries.push({ userId: user.id, clockInTime: Date.now() });
-      localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
-      setIsClockedIn(true);
-    }
-  };
-
-  const handleClockOut = () => {
-    if (user) {
-      const timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]') as any[];
-      const lastEntry = timeEntries.filter(entry => entry.userId === user.id && !entry.clockOutTime).pop();
-      if (lastEntry) {
-        lastEntry.clockOutTime = Date.now();
-        localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
-        setIsClockedIn(false);
-      }
-    }
-  };
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold">Admin Dashboard</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold">Admin Dashboard</h2>
+      </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -125,17 +86,10 @@ export const AdminDashboard = () => {
 
         <TabsList>
           <TabsTrigger value="management">Management</TabsTrigger>
-          <TabsTrigger value="reports">Reports & Analytics</TabsTrigger>
-          <TabsTrigger value="time-clock">Time Clock</TabsTrigger> {/* New tab for Time Clock History */}
-          <TabsTrigger value="system">
-            <div className="flex items-center">
-              System
-              <Button size="sm" variant="outline" className="ml-2" onClick={isClockedIn ? handleClockOut : handleClockIn}>
-                {isClockedIn ? 'Clock Out' : 'Clock In'}
-              </Button>
-            </div>
-          </TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsTrigger value="system">System</TabsTrigger>
           <TabsTrigger value="ai">AI Assistant</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
         </TabsList>
 
 
@@ -163,7 +117,7 @@ export const AdminDashboard = () => {
                     <Button variant="ghost" size="sm">Edit</Button>
                   </div>
                   
-                  <div className="flex items-center justify-between p-2 bg-muted rounded-md ">
+                  <div className="flex items-center justify-between p-2 bg-muted rounded-md">
                     <div className="flex items-center">
                       <User className="h-4 w-4 mr-2 text-muted-foreground" />
                       <div>
@@ -184,7 +138,7 @@ export const AdminDashboard = () => {
                     </div>
                     <Button variant="ghost" size="sm">Edit</Button>
                   </div>
-                </div> 
+                </div>
                 
                 <Button className="w-full mt-4">
                   <Users className="h-4 w-4 mr-2" />
@@ -201,60 +155,11 @@ export const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Tax Configuration
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Discount Programs
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Payment Methods
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Insurance Providers
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Receipt Templates
-                  </Button>
-                </div>
+                <SystemSettings />
               </CardContent>
             </Card>
           </div>
         </TabsContent>
-
-        {/* New content for Reports & Analytics */}
-        <TabsContent value="reports" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Inventory Value Breakdown Pie Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Inventory Value Breakdown</CardTitle>
-                <CardDescription>Distribution of inventory value by category</CardDescription>
-              </CardHeader>
-              <CardContent className="flex items-center justify-center">
-                {/* Placeholder for Pie Chart component */}
-                {/* Replace with your charting library's Pie Chart component */}
-                <div className="text-muted-foreground">Pie Chart Placeholder (e.g., from recharts)</div>
-                {/* Data fetching for this chart would occur here or in a parent component */}
-              </CardContent>
-            </Card>
-
-            {/* Monthly Sales Trend Bar Chart */}
-            <Card>
-              <CardHeader><CardTitle>Monthly Sales Trend</CardTitle><CardDescription>Revenue trend over the past few months</CardDescription></CardHeader>
-              <CardContent className="flex items-center justify-center">
-                {/* Placeholder for Bar Chart component */}
-                {/* Replace with your charting library's Bar Chart component */}
-                <div className="text-muted-foreground">Bar Chart Placeholder (e.g., from recharts)</div>
-                {/* Data fetching for this chart would occur here or in a parent component */}
-              </CardContent>
-            </Card>
 
         <TabsContent value="reports" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -266,28 +171,7 @@ export const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <Button className="w-full justify-start" variant="outline">
-                    <BarChart className="h-4 w-4 mr-2" />
-                    Daily Sales Summary
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <BarChart className="h-4 w-4 mr-2" />
-                    Monthly Revenue Analysis
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <BarChart className="h-4 w-4 mr-2" />
-                    Product Performance
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <BarChart className="h-4 w-4 mr-2" />
-                    Cashier Performance
-                  </Button>
-                  <Button className="w-full">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Reports
-                  </Button>
-                </div>
+                {/* Sales report content goes here */}
               </CardContent>
             </Card>
             
@@ -299,39 +183,24 @@ export const AdminDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Package className="h-4 w-4 mr-2" />
-                    Current Inventory Value
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Package className="h-4 w-4 mr-2" />
-                    Stock Movement Analysis
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Package className="h-4 w-4 mr-2" />
-                    Expiration Report
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Package className="h-4 w-4 mr-2" />
-                    Reorder Recommendations
-                  </Button>
-                  <Button className="w-full">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Reports
-                  </Button>
-                </div>
+                <InventoryReport />
+              </CardContent>
+            </Card>
+
+            <Card className="col-span-1">
+              <CardHeader>
+                <CardTitle>Inventory Reports</CardTitle>
+                <CardDescription>
+                  Track and analyze inventory data
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <InventoryReport />
               </CardContent>
             </Card>
           </div>
         </TabsContent>
-        </TabsContent>
-
-        {/* New content for Time Clock History */}
-        <TabsContent value="time-clock" className="space-y-4">
-          <TimeClockHistory />
-        </TabsContent>
-
+        
         <TabsContent value="system" className="space-y-4">
           <Card>
             <CardHeader>
@@ -379,7 +248,7 @@ export const AdminDashboard = () => {
                     </CardContent>
                   </Card>
                 </div>
-
+                
                 <div className="bg-muted p-4 rounded-md">
                   <h4 className="text-sm font-medium mb-2">Recent System Events</h4>
                   <div className="space-y-2 text-xs">
@@ -415,8 +284,26 @@ export const AdminDashboard = () => {
               <AskAI userRole="admin"/>
             </CardContent>
           </Card>
+          
+          <AIAnalytics />
+        </TabsContent>
+        
+        <TabsContent value="performance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Staff Performance Overview</CardTitle>
+              <CardDescription>
+                Detailed metrics and comparisons for all staff members
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PerformanceMetrics />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
+      
+      <UserInfoBar />
     </div>
   );
 };
