@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -15,17 +15,55 @@ import {
   Package,
   Shield,
   Download,
-  Upload,
   History,
   User,
+  Upload,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/UI/tabs';
+import TimeClockHistory from './TimeClockHistory'; // Import the TimeClockHistory component
 import { AskAI } from '@/features/Dashboard/AskAI';
-import { ShiftOverview } from '@/features/Dashboard/ShiftOverview';
+import ShiftOverview from '@/features/Dashboard/ShiftOverview';
 import { UserPerformance } from '@/features/Dashboard/UserPerformance';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/UI/tabs';
+import { useAuth } from '@/features/Auth/AuthContext';
 
 export const AdminDashboard = () => {
+  const { user } = useAuth();
+  const [isClockedIn, setIsClockedIn] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      const timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]') as any[];
+      const lastEntry = timeEntries
+        .filter(entry => entry.userId === user.id)
+        .pop();
+      if (lastEntry && !lastEntry.clockOutTime) {
+        setIsClockedIn(true);
+      } else {
+        setIsClockedIn(false);
+      }
+    }
+  }, [user]);
+
+  const handleClockIn = () => {
+    if (user) {
+      const timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]') as any[];
+      timeEntries.push({ userId: user.id, clockInTime: Date.now() });
+      localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+      setIsClockedIn(true);
+    }
+  };
+
+  const handleClockOut = () => {
+    if (user) {
+      const timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]') as any[];
+      const lastEntry = timeEntries.filter(entry => entry.userId === user.id && !entry.clockOutTime).pop();
+      if (lastEntry) {
+        lastEntry.clockOutTime = Date.now();
+        localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+        setIsClockedIn(false);
+      }
+    }
+  };
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold">Admin Dashboard</h2>
@@ -87,8 +125,16 @@ export const AdminDashboard = () => {
 
         <TabsList>
           <TabsTrigger value="management">Management</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="system">System</TabsTrigger>
+          <TabsTrigger value="reports">Reports & Analytics</TabsTrigger>
+          <TabsTrigger value="time-clock">Time Clock</TabsTrigger> {/* New tab for Time Clock History */}
+          <TabsTrigger value="system">
+            <div className="flex items-center">
+              System
+              <Button size="sm" variant="outline" className="ml-2" onClick={isClockedIn ? handleClockOut : handleClockIn}>
+                {isClockedIn ? 'Clock Out' : 'Clock In'}
+              </Button>
+            </div>
+          </TabsTrigger>
           <TabsTrigger value="ai">AI Assistant</TabsTrigger>
         </TabsList>
 
@@ -182,6 +228,34 @@ export const AdminDashboard = () => {
           </div>
         </TabsContent>
 
+        {/* New content for Reports & Analytics */}
+        <TabsContent value="reports" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Inventory Value Breakdown Pie Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Inventory Value Breakdown</CardTitle>
+                <CardDescription>Distribution of inventory value by category</CardDescription>
+              </CardHeader>
+              <CardContent className="flex items-center justify-center">
+                {/* Placeholder for Pie Chart component */}
+                {/* Replace with your charting library's Pie Chart component */}
+                <div className="text-muted-foreground">Pie Chart Placeholder (e.g., from recharts)</div>
+                {/* Data fetching for this chart would occur here or in a parent component */}
+              </CardContent>
+            </Card>
+
+            {/* Monthly Sales Trend Bar Chart */}
+            <Card>
+              <CardHeader><CardTitle>Monthly Sales Trend</CardTitle><CardDescription>Revenue trend over the past few months</CardDescription></CardHeader>
+              <CardContent className="flex items-center justify-center">
+                {/* Placeholder for Bar Chart component */}
+                {/* Replace with your charting library's Bar Chart component */}
+                <div className="text-muted-foreground">Bar Chart Placeholder (e.g., from recharts)</div>
+                {/* Data fetching for this chart would occur here or in a parent component */}
+              </CardContent>
+            </Card>
+
         <TabsContent value="reports" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <Card className="col-span-1">
@@ -250,6 +324,12 @@ export const AdminDashboard = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+        </TabsContent>
+
+        {/* New content for Time Clock History */}
+        <TabsContent value="time-clock" className="space-y-4">
+          <TimeClockHistory />
         </TabsContent>
 
         <TabsContent value="system" className="space-y-4">

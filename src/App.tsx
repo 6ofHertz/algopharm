@@ -14,8 +14,8 @@ import Inventory from "@/features/Inventory/Inventory";
 import Calendar from "@/features/Calendar/Calendar";
 import POS from "@/features/POS/POS";
 import Settings from "@/features/Dashboard/Settings";
+import SettingsPage from "./pages/Settings.js";
 import Accounting from "@/features/Accounting/pages/Accounting";
-import NotFound from "@/features/NotFound/NotFound";
 import AskAI from "@/features/AskAI/AskAI";
 import Index from "@/features/Index/Index";
 
@@ -33,8 +33,8 @@ function App() {
             <Route element={<ProtectedRoute />}>
  <Route element={<DashboardLayout />}>
  <Route path="/ai" element={<AskAI />} />
- <Route path="/dashboard" element={<Dashboard />} />
- <Route path="/settings" element={<Settings />} />
+ <Route path="/dashboard" element={<Dashboard />} />import NotFound from "@/features/NotFound/NotFound";
+ <Route path="/settings" element={<SettingsPage />} />
  {/* Cashier specific routes */}
  <Route path="/pos" element={<POS />} />
  {/* Pharmacist specific routes */}

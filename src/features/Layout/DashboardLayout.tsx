@@ -6,16 +6,18 @@ import { Barcode, Calendar, LayoutDashboard, Search, Settings, Clock } from "luc
 import { Avatar, AvatarFallback } from "@/features/UI/avatar";
 import { Button } from "@/features/UI/button";
 import { Separator } from "@/features/UI/separator";
-import { UserMenu } from "@/features/Layout/UserMenu";
+import UserMenu from "@/features/layout/UserMenu";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/features/Theme/theme-toggle";
 import { Badge } from "@/features/UI/badge";
 import { cn } from "@/features/lib/utils";
 import { useIsMobile } from "@/features/hooks/use-mobile";
-import { AnalogClock } from "@/features/Layout/AnalogClock";
+import AnalogClock from "@/features/Layout/AnalogClock";
 
 
-const DashboardLayout = () => {
+interface DashboardLayoutProps {
+  children?: React.ReactNode;
+}
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("dashboard");
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -26,6 +28,8 @@ const DashboardLayout = () => {
     initials: "SJ",
     id: "PHR-001",
   });
+
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   // Update clock every minute
   useEffect(() => {
@@ -118,7 +122,7 @@ const DashboardLayout = () => {
           <div>
             <Separator className="my-4"/>
             <div className="px-3 pb-4">
-              <UserMenu user={user} />
+              <UserMenu user={user} username={""} />
             </div>
           </div>
         </Sidebar>
@@ -162,7 +166,7 @@ const DashboardLayout = () => {
             </div>
           </header>
           <main className="flex-1 overflow-y-auto p-6">
-            <Outlet />
+            {children || <Outlet />}
           </main>
            <div className="absolute bottom-4 left-4">
             <AnalogClock username={user.name}/>
@@ -172,6 +176,4 @@ const DashboardLayout = () => {
     </SidebarProvider>
   );
 };
-export default DashboardLayout;
-
 export default DashboardLayout;

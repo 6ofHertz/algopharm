@@ -1,9 +1,9 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const dataRoutes = require('./routes/dataRoutes');
-const aiRoutes = require('./routes/aiRoutes');
+import express from 'express';
+import dotenv from 'dotenv';
+import dataRoutes from './routes/dataRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
+import authMiddleware from './src/backend/middleware/authMiddleware.js'; // Assuming your middleware file is here
 
-const authMiddleware = require('./middleware/authMiddleware'); // Assuming your middleware file is here
 dotenv.config();
 
 const app = express();

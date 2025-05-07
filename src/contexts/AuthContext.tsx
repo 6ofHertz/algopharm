@@ -90,6 +90,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const mockUser = mockUsers[email as keyof typeof mockUsers];
         if (mockUser && password === "password") {
           setUser(mockUser);
+          localStorage.setItem('loginTime', Date.now().toString());
           startShift(mockUser);
           resolve();
         } else {
@@ -101,6 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
+    localStorage.removeItem('loginTime');
     setUser(null);
   };
 

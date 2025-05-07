@@ -1,17 +1,18 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const dataController = require('../controllers/dataController');
+import { getSalesData, getInventoryData, getShiftData, getUserPerformanceData } from '../controllers/dataController.js';
 
 // Placeholder GET route for sales data
-router.get('/sales-data', dataController.getSalesData);
+router.get('/sales-data', getSalesData);
 
 // Placeholder GET route for inventory data
-router.get('/inventory-data', dataController.getInventoryData);
+router.get('/inventory-data', getInventoryData);
 
 // Placeholder GET route for shift data
-router.get('/shift-data', dataController.getShiftData);
+router.get('/shift-data', getShiftData);
 
 // Placeholder GET route for user performance data
-router.get('/user-performance', dataController.getUserPerformance);
+router.get('/user-performance', getUserPerformanceData);
 
-module.exports = router;
+// Exporting router correctly
+export default router;

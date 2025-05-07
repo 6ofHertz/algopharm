@@ -1,15 +1,32 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Barcode, CreditCard, Receipt, Users, DollarSign, Package } from "lucide-react";
 import { BarcodeScanner } from "../pos/BarcodeScanner";
 import { useNavigate } from "react-router-dom";
 import AskAI from "./AskAI";
+import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
 
 export const CashierDashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth(); // Get the current user
+  const [isClockedIn, setIsClockedIn] = useState(false);
   
+  // Initialize isClockedIn status from local storage on component mount
+  useEffect(() => {
+    if (user) {
+      const timeEntriesString = localStorage.getItem('timeEntries');
+      const timeEntries = timeEntriesString ? JSON.parse(timeEntriesString) : [];
+      const lastEntry = timeEntries.filter(entry => entry.userId === user.id).pop();
+      if (lastEntry && !lastEntry.clockOutTime) {
+        setIsClockedIn(true);
+      } else {
+        setIsClockedIn(false);
+      }
+    }
+  }, [user]);
+
   const handleScan = (barcode: string) => {
     console.log("Scanned barcode:", barcode);
     // In a real app, this would look up the product and add it to cart
@@ -21,7 +38,37 @@ export const CashierDashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative"> {/* Added relative for absolute positioning */}
+      {user && (
+        <Button
+          onClick={() => {
+            const timeEntriesString = localStorage.getItem('timeEntries');
+            const timeEntries = timeEntriesString ? JSON.parse(timeEntriesString) : [];
+
+            if (!isClockedIn) {
+              // Clock In
+              const newEntry = { userId: user.id, clockInTime: Date.now() };
+              timeEntries.push(newEntry);
+              localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+              setIsClockedIn(true);
+            } else {
+              // Clock Out
+              const lastEntryIndex = timeEntries.findIndex(
+                (entry: any) => entry.userId === user.id && !entry.clockOutTime
+              );
+              if (lastEntryIndex !== -1) {
+                timeEntries[lastEntryIndex].clockOutTime = Date.now();
+                localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+                setIsClockedIn(false);
+              }
+            }
+          }}
+          className="absolute top-0 right-0 mt-4 mr-4" // Positioned top-right
+          variant={isClockedIn ? "destructive" : "default"}
+        >
+          {isClockedIn ? "Clock Out" : "Clock In"}
+        </Button>
+      )}
       <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold">Cashier Dashboard</h2>
           <AskAI userRole="cashier"/></div>

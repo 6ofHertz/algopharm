@@ -1,8 +1,10 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const aiController = require('../controllers/aiController');
+
+// Use named import for handleAIQuery
+import { handleAIQuery } from '../controllers/aiController.js';
 
 // Placeholder POST route for AI query
-router.post('/ai-query', aiController.handleAiQuery);
+router.post('/ai-query', handleAIQuery);
 
-module.exports = router;
+export default router;

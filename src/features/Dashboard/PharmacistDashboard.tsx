@@ -1,6 +1,6 @@
-
-import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/features/UI/card";
+import { useAuth } from "@/features/Auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { 
   FileText, 
@@ -13,18 +13,52 @@ import {
   BarChart,
   Shield
 } from "lucide-react";
+import { format } from 'date-fns';
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { InteractionAlert } from "@/components/pos/InteractionAlert";
 
 export const PharmacistDashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isClockedIn, setIsClockedIn] = useState(false);
   const [showInteractionDemo, setShowInteractionDemo] = React.useState(false);
   
   const dummyInteractions = [
     "Lipitor (atorvastatin) may interact with Amiodarone causing increased risk of myopathy",
     "Warfarin efficacy may be reduced by concurrent use of Pantoprazole"
   ];
+
+  useEffect(() => {
+    if (!user) return;
+    const timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]');
+    const lastEntry = timeEntries.findLast((entry: any) => entry.userId === user.id);
+    if (lastEntry && !lastEntry.clockOutTime) {
+      setIsClockedIn(true);
+    }
+  }, [user]);
+
+  const handleClockIn = () => {
+    if (!user) return;
+    const timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]');
+    const newEntry = {
+      userId: user.id,
+      clockInTime: Date.now(),
+    };
+    localStorage.setItem('timeEntries', JSON.stringify([...timeEntries, newEntry]));
+    setIsClockedIn(true);
+  };
+
+  const handleClockOut = () => {
+    if (!user) return;
+    const timeEntries = JSON.parse(localStorage.getItem('timeEntries') || '[]');
+    const lastEntryIndex = timeEntries.findLastIndex((entry: any) => entry.userId === user.id && !entry.clockOutTime);
+    if (lastEntryIndex !== -1) {
+      timeEntries[lastEntryIndex].clockOutTime = Date.now();
+      localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+      setIsClockedIn(false);
+    }
+  };
 
   return (
     <div className="space-y-6">

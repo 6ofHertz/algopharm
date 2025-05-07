@@ -1,6 +1,6 @@
 // controllers/dataController.js
 
-exports.getSalesData = (req, res) => {
+export const getSalesData = (req, res) => {
   // TODO: Implement logic to fetch sales data from the database
   // Use req.query to access query parameters (e.g., date range, user)
   console.log('Fetching sales data...');
@@ -14,7 +14,7 @@ exports.getSalesData = (req, res) => {
   res.json(mockSalesData);
 };
 
-exports.getInventoryData = (req, res) => {
+export const getInventoryData = (req, res) => {
   // TODO: Implement logic to fetch inventory data from the database
   // Use req.query to access query parameters (e.g., product name, stock level)
   console.log('Fetching inventory data...');
@@ -28,7 +28,7 @@ exports.getInventoryData = (req, res) => {
   res.json(mockInventoryData);
 };
 
-exports.getShiftData = (req, res) => {
+export const getShiftData = (req, res) => {
   // TODO: Implement logic to fetch shift data from the database
   // Use req.query to access query parameters (e.g., user, date)
   console.log('Fetching shift data...');
@@ -41,7 +41,7 @@ exports.getShiftData = (req, res) => {
   res.json(mockShiftData);
 };
 
-exports.getUserPerformanceData = (req, res) => {
+export const getUserPerformanceData = (req, res) => {
   // TODO: Implement logic to fetch user performance data from the database
   // This might involve aggregating sales and shift data per user
   console.log('Fetching user performance data...');

@@ -1,11 +1,11 @@
 import React from 'react';
-import DashboardLayout from '@/features/layout/DashboardLayout';
-import SettingsComponent from '@/features/Dashboard/Settings';
+import Settings from '@/features/Settings';
+import DashboardLayout from '@/features/Layout/DashboardLayout';
 
 const SettingsPage = () => {
   return (
     <DashboardLayout>
-      <SettingsComponent />
+      <Settings />
     </DashboardLayout>
   );
 };

@@ -1,6 +1,6 @@
 // controllers/aiController.js
 
-exports.handleAIQuery = (req, res) => {
+export const handleAIQuery = (req, res) => {
   const userQuery = req.body.query;
 
   // TODO: Add logic here to determine relevant application data based on userQuery

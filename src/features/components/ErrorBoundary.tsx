@@ -1,4 +1,3 @@
-tsx
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
