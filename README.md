@@ -1,7 +1,7 @@
 
 # APOTHEKE Pro - Modern Pharmacy POS System
 
-![APOTHEKE Pro](https://github.com/yourgithub/apothekepro/assets/preview.png)
+![APOTHEKE Pro]((https://github.com/6ofHertz/algopharm/blob/main/logo2.png))
 
 ## Overview
 
