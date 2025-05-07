@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -25,7 +26,7 @@ import { UserInfoBar } from "../common/UserInfoBar";
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [pharmacyName, setPharmacyName] = useState("AlgoPharm");
+  const [pharmacyName, setPharmacyName] = useState("APOTHEKE Pro");
 
   return (
     <div className="space-y-6">

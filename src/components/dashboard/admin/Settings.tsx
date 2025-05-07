@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 
 export const SystemSettings = () => {
-  const [pharmacyName, setPharmacyName] = useState("AlgoPharm");
+  const [pharmacyName, setPharmacyName] = useState("APOTHEKE Pro");
   
   return (
     <div className="space-y-4">

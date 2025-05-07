@@ -1,11 +1,11 @@
 
-# PillPulse - Modern Pharmacy POS System
+# APOTHEKE Pro - Modern Pharmacy POS System
 
-![PillPulse](https://github.com/yourgithub/pillpulse/assets/preview.png)
+![APOTHEKE Pro](https://github.com/yourgithub/apothekepro/assets/preview.png)
 
 ## Overview
 
-PillPulse is a comprehensive, modern Point of Sale (POS) system specifically designed for pharmacies. It combines powerful inventory management, prescription handling, and sales processing with an intuitive user interface to streamline pharmacy operations.
+APOTHEKE Pro is a comprehensive, modern Point of Sale (POS) system specifically designed for pharmacies. It combines powerful inventory management, prescription handling, and sales processing with an intuitive user interface to streamline pharmacy operations.
 
 ## Key Features
 
@@ -74,10 +74,10 @@ PillPulse is a comprehensive, modern Point of Sale (POS) system specifically des
 
 ```bash
 # Clone the repository
-git clone https://github.com/6ofHertz/pillpulse.git
+git clone https://github.com/6ofHertz/apothekepro.git
 
 # Navigate to the project directory
-cd pillpulse
+cd apothekepro
 
 # Install dependencies
 npm install
@@ -121,7 +121,7 @@ yarn dev
 
 ## Deployment
 
-PillPulse is designed to be deployed in various environments:
+APOTHEKE Pro is designed to be deployed in various environments:
 
 - **Cloud Deployment**: AWS, Google Cloud, or Azure
 - **On-Premises**: Docker containers for easy setup
@@ -147,4 +147,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-© 2025 PillPulse. All Rights Reserved.
+© 2025 APOTHEKE Pro. All Rights Reserved.
