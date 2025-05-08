@@ -45,7 +45,7 @@ export const LoginForm = () => {
 
     <Card className={cn("")}>
       <CardHeader>
-        <CardTitle className="text-center">Login to AlgoPharm</CardTitle>
+        <CardTitle className="text-center">Login to APOTHEKE Pro</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,9 +91,9 @@ export const LoginForm = () => {
                 type="button"
                 variant="outline"
                 size="sm"
-                 onClick={() => {
-                  setEmail("cashier@algopharm.com");
-                  setPassword("password");
+                onClick={() => {
+                  setEmail("cashier@apothekepro.com");
+                  setPassword("password123");
                 }}
               >
                 Cashier
@@ -103,8 +103,8 @@ export const LoginForm = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setEmail("pharmacist@algopharm.com");
-                  setPassword("password");
+                  setEmail("pharma@apothekepro.com");
+                  setPassword("password123");
                 }}
               >
                 Pharmacist
@@ -114,8 +114,8 @@ export const LoginForm = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setEmail("admin@algopharm.com");
-                  setPassword("password");
+                  setEmail("admin@apothekepro.com");
+                  setPassword("password123");
                 }}
               >
                 Admin

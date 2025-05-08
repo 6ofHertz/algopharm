@@ -21,6 +21,7 @@ interface AuthContextType extends ShiftContextType{
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
   isAuthenticated: boolean;
   hasRole: (role: UserRole | UserRole[]) => boolean;
 }
@@ -58,30 +59,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
   const [user, setUser] = useState<User | null>(null);
 
-  // Mock users for demo purposes
-  const mockUsers = {
-    "cashier@algopharm.com": {
+  // Mock users for demo purposes 
+  const [mockUsers, setMockUsers] = useState({
+    "cashier@apothekepro.com": {
       id: "usr_001",
       name: "John Doe",
-      email: "cashier@algopharm.com",
+      email: "cashier@apothekepro.com",
       role: "cashier" as UserRole,
       employeeId: "CSH-001",
+      password: "password123"
     },
-    "pharmacist@algopharm.com": {
+    "pharma@apothekepro.com": {
       id: "usr_002",
       name: "Dr. Sarah Johnson",
-      email: "pharmacist@algopharm.com",
+      email: "pharma@apothekepro.com",
       role: "pharmacist" as UserRole,
       employeeId: "PHR-001",
+      password: "password123"
     },
-    "admin@algopharm.com": {
+    "admin@apothekepro.com": {
       id: "usr_003",
       name: "Alex Smith",
-      email: "admin@algopharm.com",
+      email: "admin@apothekepro.com",
       role: "admin" as UserRole,
       employeeId: "ADM-001",
+      password: "password123"
     },
-  };
+  });
 
   const login = async (email: string, password: string) => {
     // This would normally validate against a backend API
@@ -104,6 +108,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = () => {
     localStorage.removeItem('loginTime');
     setUser(null);
+    localStorage.removeItem("user");
   };
 
   const hasRole = (roleCheck: UserRole | UserRole[]) => {

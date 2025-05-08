@@ -1,9 +1,10 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { format, startOfToday } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const events = [
   {
@@ -46,6 +47,7 @@ const events = [
 const CalendarPage = () => {
   const today = startOfToday();
   const [selectedDate, setSelectedDate] = useState<Date>(today);
+  const [activeTab, setActiveTab] = useState<string>("events");
 
   // Filter events for the selected date
   const selectedEvents = events.filter(
@@ -59,6 +61,12 @@ const CalendarPage = () => {
   const eventDates = events.map(event => 
     `${event.date.getFullYear()}-${event.date.getMonth()}-${event.date.getDate()}`
   );
+  
+  // When selected date changes, show events tab
+  useEffect(() => {
+    // Animate tab change after a small delay
+    setActiveTab("events");
+  }, [selectedDate]);
 
   return (
     <div className="space-y-4">
@@ -94,7 +102,11 @@ const CalendarPage = () => {
                 </CardDescription>
               </div>
               <div className="flex space-x-2">
-                <Badge variant="outline" className="bg-pill-100 text-pill-700 hover:bg-pill-200">
+                <Badge 
+                  variant="outline" 
+                  className={`${selectedDate.toDateString() === today.toDateString() ? 'bg-pill-100 text-pill-700' : 'bg-muted'} hover:bg-pill-200`}
+                  onClick={() => setSelectedDate(today)}
+                >
                   Today
                 </Badge>
                 <Badge variant="outline" className="bg-green-100 text-green-700 hover:bg-green-200">
@@ -104,34 +116,58 @@ const CalendarPage = () => {
             </div>
           </CardHeader>
           <CardContent>
-            {selectedEvents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[300px] text-center">
-                <p className="text-muted-foreground">No events scheduled for this date.</p>
-                <p className="text-sm text-muted-foreground mt-1">Click "Add Event" to create a new event.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {selectedEvents.map((event) => (
-                  <div 
-                    key={event.id} 
-                    className="flex items-center p-3 rounded-lg border hover:shadow-md transition-all duration-200 hover:border-pill-300"
-                  >
-                    <div className={`h-4 w-4 rounded-full mr-3 
-                      ${event.type === 'meeting' ? 'bg-blue-500' : 
-                        event.type === 'important' ? 'bg-red-500' : 'bg-green-500'}`} 
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-medium">{event.title}</h4>
-                      <p className="text-sm text-muted-foreground">{event.time}</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button className="text-sm text-muted-foreground hover:text-foreground">Edit</button>
-                      <button className="text-sm text-muted-foreground hover:text-destructive">Delete</button>
-                    </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="animate-fade-in">
+              <TabsList className="mb-4">
+                <TabsTrigger value="events">Events</TabsTrigger>
+                <TabsTrigger value="notes">Notes</TabsTrigger>
+                <TabsTrigger value="tasks">Tasks</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="events">
+                {selectedEvents.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-[300px] text-center">
+                    <p className="text-muted-foreground">No events scheduled for this date.</p>
+                    <p className="text-sm text-muted-foreground mt-1">Click "Add Event" to create a new event.</p>
                   </div>
-                ))}
-              </div>
-            )}
+                ) : (
+                  <div className="space-y-4">
+                    {selectedEvents.map((event) => (
+                      <div 
+                        key={event.id} 
+                        className="flex items-center p-3 rounded-lg border hover:shadow-md transition-all duration-200 hover:border-pill-300"
+                      >
+                        <div className={`h-4 w-4 rounded-full mr-3 
+                          ${event.type === 'meeting' ? 'bg-blue-500' : 
+                            event.type === 'important' ? 'bg-red-500' : 'bg-green-500'}`} 
+                        />
+                        <div className="flex-1">
+                          <h4 className="font-medium">{event.title}</h4>
+                          <p className="text-sm text-muted-foreground">{event.time}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button className="text-sm text-muted-foreground hover:text-foreground">Edit</button>
+                          <button className="text-sm text-muted-foreground hover:text-destructive">Delete</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="notes">
+                <div className="flex flex-col items-center justify-center h-[300px] text-center">
+                  <p className="text-muted-foreground">No notes for this date.</p>
+                  <Button variant="outline" className="mt-4">Add a Note</Button>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="tasks">
+                <div className="flex flex-col items-center justify-center h-[300px] text-center">
+                  <p className="text-muted-foreground">No tasks for this date.</p>
+                  <Button variant="outline" className="mt-4">Add a Task</Button>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
@@ -149,7 +185,11 @@ const CalendarPage = () => {
                 .sort((a, b) => a.date.getTime() - b.date.getTime())
                 .slice(0, 5)
                 .map(event => (
-                  <div key={event.id} className="flex items-center p-2 hover:bg-accent/50 rounded-md">
+                  <div 
+                    key={event.id} 
+                    className="flex items-center p-2 hover:bg-accent/50 rounded-md cursor-pointer"
+                    onClick={() => setSelectedDate(new Date(event.date))}
+                  >
                     <div className={`h-3 w-3 rounded-full mr-3 
                       ${event.type === 'meeting' ? 'bg-blue-500' : 
                         event.type === 'important' ? 'bg-red-500' : 'bg-green-500'}`} 

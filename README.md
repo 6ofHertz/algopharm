@@ -1,10 +1,11 @@
 
-# Apotheke - Modern Pharmacy POS System
+# APOTHEKE Pro - Modern Pharmacy POS System
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/6ofHertz/algopharm/main/logo2.png" alt="Apotheke Logo" width="600"/>
-  <p>A comprehensive, modern Pharmacy Management System with advanced features for streamlined operations.</p>
-</div>
+![APOTHEKE Pro]((https://github.com/6ofHertz/algopharm/blob/main/logo2.png))
+
+## Overview
+
+APOTHEKE Pro is a comprehensive, modern Point of Sale (POS) system specifically designed for pharmacies. It combines powerful inventory management, prescription handling, and sales processing with an intuitive user interface to streamline pharmacy operations.
 
 ## ✨ Features
 
@@ -97,14 +98,10 @@ The backend handles API requests, data persistence, and business logic. A sugges
 
 ```bash
 # Clone the repository
-<<<<<<< HEAD
-git clone https://github.com/6ofHertz/pillpulse.git
-=======
-git clone https://github.com/6ofHertz/Apotheke.git
->>>>>>> gemini-edits
+git clone https://github.com/6ofHertz/apothekepro.git
 
 # Navigate to the project directory
-cd Apotheke
+cd apothekepro
 
 # Install dependencies
 npm install
@@ -156,7 +153,7 @@ Apotheke implements a tiered access control system to ensure data security and a
 
 ## Deployment
 
-Apotheke is designed to be deployed in various environments:
+APOTHEKE Pro is designed to be deployed in various environments:
 
 - **Cloud Deployment**: AWS, Google Cloud, or Azure
 - **On-Premises**: Easily deployable in on-premises environments, potentially using Docker containers for simplified setup and management.
@@ -183,4 +180,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-© 2025 Apotheke. All Rights Reserved.
+© 2025 APOTHEKE Pro. All Rights Reserved.

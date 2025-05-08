@@ -1,11 +1,20 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Barcode, ArrowRight } from "lucide-react";
 
 export const Index = () => {
   const navigate = useNavigate();
+  const [pharmacyName, setPharmacyName] = useState("APOTHEKE Pro");
+
+  useEffect(() => {
+    const storedName = localStorage.getItem("pharmacyName");
+    if (storedName) {
+      setPharmacyName(storedName);
+    }
+    document.title = storedName || "APOTHEKE Pro";
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4">
@@ -15,7 +24,7 @@ export const Index = () => {
             <Barcode className="h-10 w-10 text-white" />
           </div>
           <h1 className="text-5xl font-extrabold text-pill-600 dark:text-pill-400 tracking-tight">
-            AlgoPharm
+            {pharmacyName}
           </h1>
         </div>
 
@@ -25,7 +34,7 @@ export const Index = () => {
         
         <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
           Streamline your pharmacy operations with our comprehensive management solution.
-          From inventory tracking to prescription management, AlgoPharm helps you deliver
+          From inventory tracking to prescription management, {pharmacyName} helps you deliver
           better patient care while optimizing your business.
         </p>
         
@@ -63,7 +72,7 @@ export const Index = () => {
         </div>
         
         <footer className="text-sm text-gray-500 dark:text-gray-400">
-          <p>© 2025 AlgoPharm Pharmacy Management. All rights reserved.</p>
+          <p>© 2025 {pharmacyName} Pharmacy Management. All rights reserved.</p>
         </footer>
       </div>
     </div>
