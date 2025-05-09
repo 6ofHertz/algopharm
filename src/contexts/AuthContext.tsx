@@ -1,137 +1,153 @@
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User as FirebaseUser,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import app from "../firebase-config";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
-
+// Types
 export type UserRole = "cashier" | "pharmacist" | "admin";
 
+interface AppUser {
+  uid: string;
+  email: string | null;
+  role?: UserRole; // Extend later with custom claims or Firestore
+}
+
 interface Shift {
-  user: User;
+  user: AppUser;
   startTime: Date;
   endTime: Date | null;
 }
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  employeeId: string;
-}
-
-interface AuthContextType extends ShiftContextType{
-  user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
+interface AuthContextType {
+  user: AppUser | null;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    role: UserRole
+  ) => Promise<void>;
   hasRole: (role: UserRole | UserRole[]) => boolean;
-}
-interface ShiftContextType {
   currentShift: Shift | null;
+  startShift: (user: AppUser) => void;
+  endShift: () => void;
 }
 
+// Auth setup
+const auth = getAuth(app);
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+// Custom hooks
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
+
 export const useShift = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useShift must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useShift must be used within an AuthProvider");
   return {
     currentShift: context.currentShift,
+    startShift: context.startShift,
+    endShift: context.endShift,
   };
 };
 
+// Provider
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    // In a real app, this would come from a backend API/localStorage
+  const [user, setUser] = useState<AppUser | null>(null);
   const [currentShift, setCurrentShift] = useState<Shift | null>(null);
-  const startShift = (user: User) => {
-    setCurrentShift({ user, startTime: new Date(), endTime: null });
-  };
-  const endShift = () => {
-    setCurrentShift((prev) => (prev ? { ...prev, endTime: new Date() } : null));
-  };
-  const [user, setUser] = useState<User | null>(null);
 
-  // Mock users for demo purposes 
-  const [mockUsers, setMockUsers] = useState({
-    "cashier@apothekepro.com": {
-      id: "usr_001",
-      name: "John Doe",
-      email: "cashier@apothekepro.com",
-      role: "cashier" as UserRole,
-      employeeId: "CSH-001",
-      password: "password123"
-    },
-    "pharma@apothekepro.com": {
-      id: "usr_002",
-      name: "Dr. Sarah Johnson",
-      email: "pharma@apothekepro.com",
-      role: "pharmacist" as UserRole,
-      employeeId: "PHR-001",
-      password: "password123"
-    },
-    "admin@apothekepro.com": {
-      id: "usr_003",
-      name: "Alex Smith",
-      email: "admin@apothekepro.com",
-      role: "admin" as UserRole,
-      employeeId: "ADM-001",
-      password: "password123"
-    },
-  });
+  // Auth state observer
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // Extend this to fetch user role from Firestore if needed
+        setUser({ uid: firebaseUser.uid, email: firebaseUser.email });
+      } else {
+        setUser(null);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   const login = async (email: string, password: string) => {
-    // This would normally validate against a backend API
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        const mockUser = mockUsers[email as keyof typeof mockUsers];
-        if (mockUser && password === "password") {
-          setUser(mockUser);
-          localStorage.setItem('loginTime', Date.now().toString());
-          startShift(mockUser);
-          resolve();
-        } else {
-          reject(new Error("Invalid email or password"));
-        }
-      }, 500);
-      
-    });
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      console.error("Login error:", error.message);
+      throw new Error(error.message);
+    }
   };
 
-  const logout = () => {
-    localStorage.removeItem('loginTime');
-    setUser(null);
-    localStorage.removeItem("user");
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error: any) {
+      console.error("Logout error:", error.message);
+    }
+  };
+
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    role: UserRole
+  ) => {
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser = userCred.user;
+      // TODO: Save name and role to Firestore or use custom claims
+      setUser({ uid: newUser.uid, email: newUser.email, role });
+    } catch (error: any) {
+      console.error("Register error:", error.message);
+      throw new Error(error.message);
+    }
   };
 
   const hasRole = (roleCheck: UserRole | UserRole[]) => {
-    if (!user) return false;
-    
-    if (Array.isArray(roleCheck)) {
-      return roleCheck.includes(user.role);
-    }
-    
+    if (!user || !user.role) return false;
+    if (Array.isArray(roleCheck)) return roleCheck.includes(user.role);
     return user.role === roleCheck;
   };
 
+  const startShift = (user: AppUser) => {
+    setCurrentShift({ user, startTime: new Date(), endTime: null });
+  };
+
+  const endShift = () => {
+    setCurrentShift((prev) =>
+      prev ? { ...prev, endTime: new Date() } : null
+    );
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        isAuthenticated: !!user,
         login,
         logout,
-        currentShift,
-        
-        isAuthenticated: !!user,
+        register,
         hasRole,
+        currentShift,
+        startShift,
+        endShift,
       }}
     >
       {children}
