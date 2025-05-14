@@ -4,14 +4,20 @@
 // For example, using the 'pg' library:
 // const { Pool } = require('pg');
 // const pool = new Pool({ ...your database configuration ... });
+// Make sure to configure your database connection properly, likely pulling credentials from environment variables.
 
 // Placeholder function to simulate getting relevant data
 const getRelevantData = async (query, userRole) => {
   console.log(`[getRelevantData] Fetching relevant data for query: "${query}" and role: "${userRole}"`);
 
-  // TODO: Implement logic to parse the query and userRole to fetch specific data from your database.
-  // Use your database connection to execute queries.
+  // TODO: Implement logic to parse the user's `query` to identify what kind of data they are asking for.
+  // This might involve keyword matching, natural language processing, or looking for specific patterns.
+  // Also, consider the `userRole` to determine what data the user is authorized to access.
+
+  // TODO: Use your database connection (e.g., `pool` from the example) to execute queries based on the parsed query and userRole.
+  // Structure your database queries to retrieve only the data relevant to the user's request and role.
   // Example using a hypothetical pool.query:
+  // TODO: Replace this example with your actual database query logic.
   /*
   try {
     let data = {};
@@ -30,8 +36,10 @@ const getRelevantData = async (query, userRole) => {
       data.inventory = inventoryResult.rows;
     }
     // Add more conditions for other roles and query types
+    // Ensure you handle cases where no relevant data is found.
 
     return data;
+  // TODO: Implement robust error handling for database interactions. Log specific database errors.
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error; // Re-throw the error to be handled by the caller
@@ -49,9 +57,11 @@ const getRelevantData = async (query, userRole) => {
 const callGeminiAPI = async (prompt) => {
   console.log(`Sending prompt to Gemini: "${prompt}"`);
 
-  // TODO: Implement actual call to the Gemini API using a library like @google/generative-ai.
-  // Ensure you handle API keys securely (e.g., from environment variables).
+  // TODO: Initialize the Gemini client. This might be done once at the start of your application or in this function.
+  // TODO: Ensure you handle authentication for the Gemini API, typically using an API key.
+  // Securely load your API key, preferably from environment variables (e.g., `process.env.GEMINI_API_KEY`).
   // Example using a hypothetical Gemini client library:
+  // TODO: Replace this example with your actual Gemini API call logic.
   /*
   try {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -61,8 +71,10 @@ const callGeminiAPI = async (prompt) => {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text(); // Get the text response from Gemini
+    // TODO: You might need to parse the Gemini response further depending on its format.
 
     return text;
+  // TODO: Implement robust error handling for Gemini API calls. Log API-specific errors.
   } catch (error) {
     console.error('Error calling Gemini API:', error);
     throw error; // Re-throw the error to be handled by the caller

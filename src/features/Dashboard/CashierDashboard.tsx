@@ -15,12 +15,31 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AskAI from "../AskAI/AskAI";
+import { motion } from "framer-motion";
 import { useAuth, AppUser } from "@/contexts/AuthContext";
 import { RecentSales } from "./RecentSales";
 import { TopSellingItems } from "./TopSellingItems"; // Keep this import as it seems correct
 import { ShiftTracker } from "../../components/dashboard/cashier/ShiftTracker";
 import { AccountingFeatures } from "../../components/dashboard/cashier/AccountingFeatures";
 import { UserInfoBar } from "../../components/common/UserInfoBar";
+
+// Animation variants for the container and items
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
+
 
 export const CashierDashboard = () => {
   const navigate = useNavigate();
@@ -73,8 +92,14 @@ export const CashierDashboard = () => {
  <AskAI userRole="cashier" />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      {/* Main dashboard cards with staggered animation */}
+      <motion.div 
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        <motion.div variants={itemVariants}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Today's Sales</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -84,7 +109,9 @@ export const CashierDashboard = () => {
             <p className="text-xs text-muted-foreground">+18.1% from yesterday</p>
           </CardContent>
         </Card>
-        <Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Transactions</CardTitle>
             <Receipt className="h-4 w-4 text-muted-foreground" />
@@ -94,7 +121,9 @@ export const CashierDashboard = () => {
             <p className="text-xs text-muted-foreground">Today's completed transactions</p>
           </CardContent>
         </Card>
-        <Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Customers</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -104,7 +133,9 @@ export const CashierDashboard = () => {
             <p className="text-xs text-muted-foreground">4 new customers today</p>
           </CardContent>
         </Card>
-        <Card>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Prescriptions</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
@@ -114,7 +145,8 @@ export const CashierDashboard = () => {
             <p className="text-xs text-muted-foreground">Awaiting pickup</p>
           </CardContent>
         </Card>
-      </div>
+        </motion.div>
+      </motion.div>
       
       {/* Quick Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

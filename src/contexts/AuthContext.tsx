@@ -54,7 +54,6 @@ interface AuthContextType {
 }
 
 // Auth setup
-const auth = getAuth(app);
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Custom hooks
@@ -78,6 +77,7 @@ export const useShift = () => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [currentShift, setCurrentShift] = useState<Shift | null>(null);
+  
 
   // Auth state observer
   useEffect(() => {
