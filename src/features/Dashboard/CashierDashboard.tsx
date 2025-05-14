@@ -16,10 +16,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import AskAI from "./AskAI";
 import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
-import { RecentSales } from \"./RecentSales\";
-import { TopSellingItems } from \"./TopSellingItems\";
-import { ShiftTracker } from \"./cashier/ShiftTracker\";
-import { AccountingFeatures } from \"./cashier/AccountingFeatures\";
+import { RecentSales } from "./RecentSales";
+import { TopSellingItems } from "./TopSellingItems";
+import { ShiftTracker } from "./cashier/ShiftTracker";
+import { AccountingFeatures } from "./cashier/AccountingFeatures";
+import { UserInfoBar } from "../common/UserInfoBar";
 
 export const CashierDashboard = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ export const CashierDashboard = () => {
       const timeEntriesString = localStorage.getItem('timeEntries');
       const timeEntries = timeEntriesString ? JSON.parse(timeEntriesString) : [];
       const lastEntry = timeEntries.filter(entry => entry.userId === user.id).pop();
+      // Check if there's a last entry and it hasn't been clocked out yet
       if (lastEntry && !lastEntry.clockOutTime) {
         setIsClockedIn(true);
       } else {
@@ -51,24 +53,25 @@ export const CashierDashboard = () => {
               localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
               setIsClockedIn(true);
             } else {
-              // Clock Out
-              const lastEntryIndex = timeEntries.findIndex(
-                (entry: any) => entry.userId === user.id && !entry.clockOutTime
-              );
-              if (lastEntryIndex !== -1) {
-                timeEntries[lastEntryIndex].clockOutTime = Date.now();
-                localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
-                setIsClockedIn(false);
-              }
+                    // Find the last clock-in entry for the current user that hasn't been clocked out
+                    const lastEntryIndex = timeEntries.findIndex(
+                      (entry: any) => entry.userId === user.id && !entry.clockOutTime
+                    );
+                    if (lastEntryIndex !== -1) {
+                      // Add clock-out time to the found entry
+                      timeEntries[lastEntryIndex].clockOutTime = Date.now();
+                      localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+                      setIsClockedIn(false);
+                    }
             }
-          }}
-          className="absolute top-0 right-0 mt-4 mr-4" // Positioned top-right
+          }
+          }>
+          <Button onClick={handleClockInOut} className="absolute top-0 right-0 mt-4 mr-4"
           variant={isClockedIn ? "destructive" : "default"}
-        >
+          >
           {isClockedIn ? "Clock Out" : "Clock In"}
-        </Button>
-      )}
-      <div className="flex items-center justify-between">
+          </Button>
+        </>)}<div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold">Cashier Dashboard</h2>
           <AskAI userRole="cashier"/></div>
       
@@ -113,21 +116,6 @@ export const CashierDashboard = () => {
             <p className="text-xs text-muted-foreground">Awaiting pickup</p>
           </CardContent>
         </Card>
-=======
-import { RecentSales } from "./RecentSales";
-import { TopSellingItems } from "./TopSellingItems";
-import { ShiftTracker } from "./cashier/ShiftTracker";
-import { AccountingFeatures } from "./cashier/AccountingFeatures";
-import { UserInfoBar } from "../common/UserInfoBar";
-
-export const CashierDashboard = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold animate-fade-in">Cashier Dashboard</h2>
->>>>>>> origin/main:src/components/dashboard/CashierDashboard.tsx
       </div>
       
       {/* Quick Action Cards */}
@@ -171,6 +159,7 @@ export const CashierDashboard = () => {
           <CardContent>
             <div className="flex items-center">
               <BarChart className="h-8 w-8 text-primary mr-2" />
+
               <div>
                 <div className="text-2xl font-bold">$1,245</div>
                 <p className="text-xs text-muted-foreground">18 transactions today</p>

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/features/UI/badge.tsx";
 
 export const UserInfoBar = () => {
   const { user } = useAuth();
