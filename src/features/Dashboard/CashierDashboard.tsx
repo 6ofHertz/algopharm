@@ -14,13 +14,13 @@ import {
   Clock
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AskAI from "./AskAI";
-import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
+import AskAI from "../AskAI/AskAI";
+import { useAuth, AppUser } from "@/contexts/AuthContext";
 import { RecentSales } from "./RecentSales";
-import { TopSellingItems } from "./TopSellingItems";
-import { ShiftTracker } from "./cashier/ShiftTracker";
-import { AccountingFeatures } from "./cashier/AccountingFeatures";
-import { UserInfoBar } from "../common/UserInfoBar";
+import { TopSellingItems } from "./TopSellingItems"; // Keep this import as it seems correct
+import { ShiftTracker } from "../../components/dashboard/cashier/ShiftTracker";
+import { AccountingFeatures } from "../../components/dashboard/cashier/AccountingFeatures";
+import { UserInfoBar } from "../../components/common/UserInfoBar";
 
 export const CashierDashboard = () => {
   const navigate = useNavigate();
@@ -65,16 +65,14 @@ export const CashierDashboard = () => {
                     }
             }
           }
-          }>
-          <Button onClick={handleClockInOut} className="absolute top-0 right-0 mt-4 mr-4"
-          variant={isClockedIn ? "destructive" : "default"}
-          >
-          {isClockedIn ? "Clock Out" : "Clock In"}
-          </Button>
-        </>)}<div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold">Cashier Dashboard</h2>
-          <AskAI userRole="cashier"/></div>
-      
+  };
+  return (
+    <div>
+ <div className="flex items-center justify-between">
+ <h2 className="text-3xl font-bold">Cashier Dashboard</h2>
+ <AskAI userRole="cashier" />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -188,6 +186,7 @@ export const CashierDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+
                 <RecentSales />
               </CardContent>
             </Card>

@@ -58,35 +58,39 @@ export const AskAI = ({ userRole }: AskAIProps) => {
     setResponses([...responses, { text: userQuery, type: "text" }]);
     setQuery("");
     setLoading(true);
+    setCurrentResponse(""); // Clear current response when submitting
+    setResponseParts([]); // Clear previous response parts
 
-    // In a production environment, this would be an API call to a backend service
-    // For demonstration purposes, we use simulated responses
-    setTimeout(() => {
-      try {
-        let aiResponse: AIResponse = generateMockAIResponse(userQuery);
+    try {
+      // Make API call to backend
+      const response = await fetch('/api/ai/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: userQuery, userRole: user?.role }), // Send query and user role
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiInsight = data.insight;
 
         // Split the response into smaller parts for typing effect
-        const parts = aiResponse.text.split(/(?<=\.\s|\n)/g).filter(Boolean);
+        const parts = aiInsight.split(/(?<=\.\s|\n)/g).filter(Boolean);
         setResponseParts(parts);
-        setCurrentResponse("");
-        
-        setLoading(false);
-        
-
         // After typing effect completes, add the full response to the list
-        setTimeout(() => {
-          setResponses(prev => [...prev, aiResponse]);
-          setCurrentResponse("");
-        }, Math.min(parts.join("").length * 10, 2000) + 500);
-      } catch (error) {
-        console.error("Error generating response:", error)
-        setLoading(false);
-        setResponses(prev => [...prev, { 
-          text: "I'm sorry, I encountered an error processing your request. Please try again.", 
-          type: "text" 
-        }]);
-      }
-    }, 800);
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
+      setResponses(prev => [...prev, {
+        text: "I'm sorry, I encountered an error processing your request. Please try again.",
+        type: "text"
+      }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Generate AI responses based on query patterns

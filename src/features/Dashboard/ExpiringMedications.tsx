@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/features/UI/table.tsx";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/features/UI/badge";
 
 const expiringMeds = [
   {
