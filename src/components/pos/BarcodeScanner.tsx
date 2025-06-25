@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Scanner } from 'lucide-react';
+import { Scan } from 'lucide-react';
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
+  onSearch?: (query: string) => void;
 }
 
-export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan }) => {
+export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, onSearch }) => {
   const [manualCode, setManualCode] = useState('');
 
   const handleManualSubmit = (e: React.FormEvent) => {
@@ -20,11 +21,17 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan }) => {
     }
   };
 
+  const handleSearch = () => {
+    if (manualCode.trim() && onSearch) {
+      onSearch(manualCode.trim());
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Scanner className="h-5 w-5" />
+          <Scan className="h-5 w-5" />
           Barcode Scanner
         </CardTitle>
       </CardHeader>
@@ -35,9 +42,16 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan }) => {
             value={manualCode}
             onChange={(e) => setManualCode(e.target.value)}
           />
-          <Button type="submit" className="w-full">
-            Add Product
-          </Button>
+          <div className="flex gap-2">
+            <Button type="submit" className="flex-1">
+              Add Product
+            </Button>
+            {onSearch && (
+              <Button type="button" variant="outline" onClick={handleSearch}>
+                Search
+              </Button>
+            )}
+          </div>
         </form>
       </CardContent>
     </Card>

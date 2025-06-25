@@ -6,25 +6,67 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-interface MultiPaymentProps {
-  total: number;
-  onPaymentComplete: (paymentDetails: any) => void;
+export interface Payment {
+  id: string;
+  method: 'cash' | 'card' | 'mpesa' | 'insurance';
+  amount: number;
+  reference?: string;
 }
 
-export const MultiPayment: React.FC<MultiPaymentProps> = ({ total, onPaymentComplete }) => {
+interface MultiPaymentProps {
+  total: number;
+  onComplete: (payments: Payment[]) => void;
+  onCancel: () => void;
+}
+
+export const MultiPayment: React.FC<MultiPaymentProps> = ({ total, onComplete, onCancel }) => {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [cashAmount, setCashAmount] = useState('');
   const [cardAmount, setCardAmount] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const details = {
-      method: paymentMethod,
-      cash: parseFloat(cashAmount) || 0,
-      card: parseFloat(cardAmount) || 0,
-      total,
-    };
-    onPaymentComplete(details);
+    const payments: Payment[] = [];
+    
+    if (paymentMethod === 'cash' || paymentMethod === 'mixed') {
+      const cash = parseFloat(cashAmount) || 0;
+      if (cash > 0) {
+        payments.push({
+          id: '1',
+          method: 'cash',
+          amount: cash
+        });
+      }
+    }
+    
+    if (paymentMethod === 'card' || paymentMethod === 'mixed') {
+      const card = parseFloat(cardAmount) || 0;
+      if (card > 0) {
+        payments.push({
+          id: '2',
+          method: 'card',
+          amount: card
+        });
+      }
+    }
+    
+    if (paymentMethod === 'cash' && !cashAmount) {
+      payments.push({
+        id: '1',
+        method: 'cash',
+        amount: total
+      });
+    }
+    
+    if (paymentMethod === 'card' && !cardAmount) {
+      payments.push({
+        id: '1',
+        method: 'card',
+        amount: total
+      });
+    }
+    
+    onComplete(payments);
   };
 
   return (
@@ -77,9 +119,14 @@ export const MultiPayment: React.FC<MultiPaymentProps> = ({ total, onPaymentComp
             </div>
           )}
 
-          <Button type="submit" className="w-full">
-            Complete Payment
-          </Button>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
+              Cancel
+            </Button>
+            <Button type="submit" className="flex-1">
+              Complete Payment
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>

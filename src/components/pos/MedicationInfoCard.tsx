@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface Medication {
   id: string;
@@ -13,9 +14,10 @@ interface Medication {
 
 interface MedicationInfoCardProps {
   medication: Medication;
+  onAddToCart: () => void;
 }
 
-export const MedicationInfoCard: React.FC<MedicationInfoCardProps> = ({ medication }) => {
+export const MedicationInfoCard: React.FC<MedicationInfoCardProps> = ({ medication, onAddToCart }) => {
   return (
     <Card>
       <CardHeader>
@@ -41,6 +43,11 @@ export const MedicationInfoCard: React.FC<MedicationInfoCardProps> = ({ medicati
           )}
         </div>
       </CardContent>
+      <CardFooter>
+        <Button onClick={onAddToCart} className="w-full">
+          Add to Cart
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
