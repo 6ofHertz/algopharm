@@ -3,13 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/fea
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/UI/tabs';
 import { Button } from '@/features/UI/button';
 import { Badge } from '@/components/ui/badge';
-import SalesReport from "@/features/Accounting/SalesReport";
-import PaymentProcessing from "@/features/Accounting/PaymentProcessing";
-import FinancialReporting from "@/features/Accounting/FinancialReporting";
-import InsuranceBilling from "@/features/Accounting/InsuranceBilling";
+import { SalesReport } from "@/features/Accounting/SalesReport";
+import { PaymentProcessing } from "@/features/Accounting/PaymentProcessing";
+import { FinancialReporting } from "@/features/Accounting/FinancialReporting";
+import { InsuranceBilling } from "@/features/Accounting/InsuranceBilling";
 import InventoryLedger from "@/features/Accounting/InventoryLedger";
-import AuditCompliance from "@/features/Accounting/AuditCompliance";
-import PredictiveAccounting from "@/features/Accounting/PredictiveAccounting";
+import { AuditCompliance } from "@/features/Accounting/AuditCompliance";
+import { PredictiveAccounting } from "@/features/Accounting/PredictiveAccounting";
 
 const Accounting = () => {
   const [activeTab, setActiveTab] = useState('sales');

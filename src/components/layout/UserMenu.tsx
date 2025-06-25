@@ -1,4 +1,4 @@
- // src/components/layout/UserMenu.tsx
+
 import React, { useState, useEffect } from 'react';
 import {
   DropdownMenu,
@@ -10,13 +10,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-// import { pharmacyName } from '@/components/Settings'; // Commented out as it's likely not a named export from Settings.tsx
 
 interface UserMenuProps {
-  username: string;
+  user: {
+    name: string;
+    role: string;
+    initials: string;
+  };
 }
 
-const UserMenu: React.FC<UserMenuProps> = ({ username }) => {
+const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -53,11 +56,11 @@ const UserMenu: React.FC<UserMenuProps> = ({ username }) => {
     <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger onClick={handleMenuToggle}>
         <div className="p-2 rounded-md cursor-pointer">
-          {username}
+          {user.name}
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 p-2 animate-in fade-in-50">
-        <DropdownMenuLabel className="text-center font-bold">{username}</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-center font-bold">{user.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSettings}>Settings</DropdownMenuItem>
         <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>

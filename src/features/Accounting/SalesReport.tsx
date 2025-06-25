@@ -1,251 +1,243 @@
-
 import React, { useState } from 'react';
-import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle,
-} from '@/features/UI/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/features/UI/card';
 import { Button } from '@/features/UI/button';
-import {
-  Tabs, TabsContent, TabsList, TabsTrigger,
-} from '@/features/UI/tabs';
-import { Input } from '@/features/UI/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/UI/table';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/features/UI/select';
-import { Download, FileText, Printer, Search } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Badge } from '@/features/UI/badge';
+import { Calendar, Download, Filter, Search, TrendingUp, TrendingDown, DollarSign, Package } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/UI/select';
+import { Input } from '@/components/ui/input';
 
 export const SalesReport = () => {
-  const [dateRange, setDateRange] = useState("today");
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
-  const [paymentMethod, setPaymentMethod] = useState("all");
-  
-  // Sample transaction data
-  const transactions = [
-    { id: "TX245789", time: "09:45 AM", customer: "John Doe", total: 126.45, method: "Credit Card", items: 3, cashier: "Emma W.", status: "Completed" },
-    { id: "TX245790", time: "10:12 AM", customer: "Sarah Johnson", total: 85.20, method: "Cash", items: 2, cashier: "Emma W.", status: "Completed" },
-    { id: "TX245791", time: "10:30 AM", customer: "Michael Brown", total: 220.75, method: "Insurance", items: 1, cashier: "David R.", status: "Completed" },
-    { id: "TX245792", time: "11:05 AM", customer: "Jessica Miller", total: 45.99, method: "Credit Card", items: 1, cashier: "Emma W.", status: "Completed" },
-    { id: "TX245793", time: "11:23 AM", customer: "Robert Williams", total: 167.50, method: "Split Payment", items: 4, cashier: "David R.", status: "Completed" },
-    { id: "TX245794", time: "11:45 AM", customer: "Linda Garcia", total: 32.75, method: "Debit Card", items: 1, cashier: "Emma W.", status: "Completed" }
+  const [dateRange, setDateRange] = useState('today');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterBy, setFilterBy] = useState('all');
+
+  const salesData = [
+    {
+      id: 'TXN-001',
+      time: '09:15 AM',
+      customer: 'John Smith',
+      items: 3,
+      total: 45.99,
+      payment: 'Card',
+      status: 'Completed'
+    },
+    {
+      id: 'TXN-002',
+      time: '10:30 AM',
+      customer: 'Sarah Johnson',
+      items: 1,
+      total: 12.50,
+      payment: 'Cash',
+      status: 'Completed'
+    },
+    {
+      id: 'TXN-003',
+      time: '11:45 AM',
+      customer: 'Mike Wilson',
+      items: 2,
+      total: 28.75,
+      payment: 'Insurance',
+      status: 'Pending'
+    }
   ];
 
+  const summaryStats = {
+    totalSales: 1247.50,
+    totalTransactions: 23,
+    averageTransaction: 54.24,
+    cashSales: 456.75,
+    cardSales: 623.25,
+    insuranceSales: 167.50
+  };
+
   return (
-    <motion.div
-      className="space-y-4"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-    >
-      <motion.div
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today's Sales</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">$1,458.75</div>
-              <p className="text-xs text-muted-foreground">+18.2% from yesterday</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Transactions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">42</div>
-              <p className="text-xs text-muted-foreground">32 completed, 10 insurance pending</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tax Collected</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">$116.70</div>
-              <p className="text-xs text-muted-foreground">8% of total sales</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Sale</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">$34.73</div>
-              <p className="text-xs text-muted-foreground">+$2.45 from yesterday</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-      >
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Sales & Transaction Tracking</CardTitle>
-              <CardDescription>
-                View and manage all transactions and receipts
-              </CardDescription>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <div className="ml-2">
+                <p className="text-sm font-medium text-muted-foreground">Total Sales</p>
+                <p className="text-2xl font-bold">${summaryStats.totalSales}</p>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm">
-                <Printer className="h-4 w-4 mr-1" />
-                Print
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-1" />
-                Export
-              </Button>
-              <Button className="pill-gradient" size="sm">
-                <FileText className="h-4 w-4 mr-1" />
-                Z-Report
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="transactions" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="transactions">Transactions</TabsTrigger>
-                <TabsTrigger value="receipts">Receipts</TabsTrigger>
-                <TabsTrigger value="tax">Tax Reports</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="transactions" className="space-y-4">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div className="flex flex-col gap-2 md:flex-row md:items-center">
-                    <Select value={dateRange} onValueChange={setDateRange}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select Period" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="today">Today</SelectItem>
-                          <SelectItem value="yesterday">Yesterday</SelectItem>
-                          <SelectItem value="week">This Week</SelectItem>
-                          <SelectItem value="month">This Month</SelectItem>
-                          <SelectItem value="custom">Custom Range</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-
-                    {dateRange === "custom" && (
-                      <>
-                        <Input
-                          type="date"
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          className="w-[140px]"
-                        />
-                        <span className="hidden md:inline">to</span>
-                        <Input
-                          type="date"
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                          className="w-[140px]"
-                        />
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-2 md:flex-row md:items-center">
-                    <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Payment Method" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="all">All Methods</SelectItem>
-                          <SelectItem value="cash">Cash</SelectItem>
-                          <SelectItem value="card">Credit/Debit</SelectItem>
-                          <SelectItem value="insurance">Insurance</SelectItem>
-                          <SelectItem value="split">Split Payment</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="search"
-                        placeholder="Search transactions..."
-                        className="pl-8 w-full md:w-[200px]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border rounded-md">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Transaction ID</TableHead>
-                        <TableHead>Time</TableHead>
-                        <TableHead>Customer</TableHead>
-                        <TableHead className="text-right">Total</TableHead>
-                        <TableHead>Payment Method</TableHead>
-                        <TableHead>Items</TableHead>
-                        <TableHead>Cashier</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {transactions.map((transaction) => (
-                        <TableRow key={transaction.id}>
-                          <TableCell className="font-medium">{transaction.id}</TableCell>
-                          <TableCell>{transaction.time}</TableCell>
-                          <TableCell>{transaction.customer}</TableCell>
-                          <TableCell className="text-right">${transaction.total.toFixed(2)}</TableCell>
-                          <TableCell>{transaction.method}</TableCell>
-                          <TableCell>{transaction.items}</TableCell>
-                          <TableCell>{transaction.cashier}</TableCell>
-                          <TableCell>
-                            <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-green-100 text-green-800">
-                              {transaction.status}
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="receipts">
-                <div className="space-y-4">
-                  <div className="border rounded-md p-4 flex justify-center items-center min-h-[400px]">
-                    <p className="text-muted-foreground">Receipt management view will be available soon.</p>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="tax">
-                <div className="space-y-4">
-                  <div className="border rounded-md p-4 flex justify-center items-center min-h-[400px]">
-                    <p className="text-muted-foreground">Tax reports will be available soon.</p>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
           </CardContent>
         </Card>
-      </motion.div>
-    </motion.div>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <Package className="h-4 w-4 text-muted-foreground" />
+              <div className="ml-2">
+                <p className="text-sm font-medium text-muted-foreground">Transactions</p>
+                <p className="text-2xl font-bold">{summaryStats.totalTransactions}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <div className="ml-2">
+                <p className="text-sm font-medium text-muted-foreground">Avg Transaction</p>
+                <p className="text-2xl font-bold">${summaryStats.averageTransaction}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <div className="ml-2">
+                <p className="text-sm font-medium text-muted-foreground">Period</p>
+                <p className="text-2xl font-bold">Today</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters and Controls */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Sales Report</CardTitle>
+          <CardDescription>View and analyze sales transactions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search transactions..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            
+            <Select value={dateRange} onValueChange={setDateRange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="yesterday">Yesterday</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={filterBy} onValueChange={setFilterBy}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Transactions</SelectItem>
+                <SelectItem value="cash">Cash Only</SelectItem>
+                <SelectItem value="card">Card Only</SelectItem>
+                <SelectItem value="insurance">Insurance Only</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
+
+          {/* Sales Table */}
+          <div className="rounded-md border">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Transaction ID</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Time</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Customer</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Items</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Total</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Payment</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {salesData.map((transaction) => (
+                    <tr key={transaction.id} className="border-b">
+                      <td className="p-4 align-middle">{transaction.id}</td>
+                      <td className="p-4 align-middle">{transaction.time}</td>
+                      <td className="p-4 align-middle">{transaction.customer}</td>
+                      <td className="p-4 align-middle">{transaction.items}</td>
+                      <td className="p-4 align-middle font-medium">${transaction.total}</td>
+                      <td className="p-4 align-middle">
+                        <Badge variant="outline">{transaction.payment}</Badge>
+                      </td>
+                      <td className="p-4 align-middle">
+                        <Badge variant={transaction.status === 'Completed' ? 'default' : 'secondary'}>
+                          {transaction.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Payment Method Breakdown */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Cash Sales</p>
+                <p className="text-2xl font-bold">${summaryStats.cashSales}</p>
+              </div>
+              <div className="text-green-600">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Card Sales</p>
+                <p className="text-2xl font-bold">${summaryStats.cardSales}</p>
+              </div>
+              <div className="text-blue-600">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Insurance Sales</p>
+                <p className="text-2xl font-bold">${summaryStats.insuranceSales}</p>
+              </div>
+              <div className="text-purple-600">
+                <TrendingDown className="h-4 w-4" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };

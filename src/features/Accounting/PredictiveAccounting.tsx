@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -8,9 +7,10 @@ import {
   CardTitle,
 } from '@/features/UI/card';
 import { Button } from '@/features/UI/button';
-import { Input } from '@/features/UI/input';
-import { AlertCircle, Brain, Calendar, Lightbulb, LineChart, TrendingDown, TrendingUp } from 'lucide-react';
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Badge } from '@/features/UI/badge';
+import { TrendingUp, TrendingDown, DollarSign, Calendar, BarChart3, PieChart, Activity, AlertTriangle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/UI/select';
+import { Input } from '@/components/ui/input';
 import { Progress } from '@/features/UI/progress';
 
 export const PredictiveAccounting = () => {

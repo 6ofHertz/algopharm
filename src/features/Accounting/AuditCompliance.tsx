@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Card,
@@ -8,11 +7,10 @@ import {
   CardTitle,
 } from '@/features/UI/card';
 import { Button } from '@/features/UI/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/UI/table';
-import { AlertCircle, CheckCircle, ClipboardCheck, FileCheck, LockKeyhole, SearchIcon, ShieldCheck } from 'lucide-react';
-import { Input } from '@/features/UI/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/features/UI/select';
 import { Badge } from '@/features/UI/badge';
+import { Calendar } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/UI/select';
+import { Input } from '@/components/ui/input';
 
 export const AuditCompliance = () => {
   const [selectedAuditLog, setSelectedAuditLog] = useState<string | null>(null);
