@@ -1,21 +1,35 @@
-typescriptreact
+
 import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/features/UI/card';
+import { Button } from '@/features/UI/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-const UserProfile: React.FC = () => {
-  const { user } = useAuth();
-
+const UserProfile = () => {
   return (
-    <div>
-      <h1>User Profile</h1>
-      {user ? (
-        <div>
-          <p>Email: {user.email}</p>
-          {/* Add other user profile information here */}
-        </div>
-      ) : (
-        <p>Please log in to view your profile.</p>
-      )}
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>User Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" placeholder="Enter your name" />
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="Enter your email" />
+            </div>
+            <div>
+              <Label htmlFor="role">Role</Label>
+              <Input id="role" placeholder="Enter your role" />
+            </div>
+            <Button>Update Profile</Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

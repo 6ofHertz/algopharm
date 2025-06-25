@@ -1,13 +1,25 @@
-tsx
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { AskAI } from "@/components/dashboard/AskAI";
 
-const AskAIPage = () => {
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/features/UI/card';
+import { Button } from '@/features/UI/button';
+import { Input } from '@/components/ui/input';
+
+const AskAI = () => {
   return (
-    <DashboardLayout>
-      <AskAI />
-    </DashboardLayout>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Ask AI Assistant</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Input placeholder="Ask me anything about your pharmacy..." />
+            <Button>Send Question</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
-export default AskAIPage;
+export default AskAI;
