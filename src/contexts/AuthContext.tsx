@@ -11,6 +11,7 @@ import {
   signOut,
   onAuthStateChanged,
   User as FirebaseUser,
+  Auth,
   createUserWithEmailAndPassword,
 } from "firebase/auth";
 import app from "../firebase-config";
@@ -37,6 +38,7 @@ interface Shift {
 }
 
 interface AuthContextType {
+  auth: Auth;
   user: AppUser | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -60,6 +62,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  // Ensure that the auth property is indeed available
+  // This check should ideally not be necessary if the provider is set up correctly
+  if (!context.auth) throw new Error("Auth instance not available in AuthContext");
   return context;
 };
 
@@ -77,7 +82,7 @@ export const useShift = () => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [currentShift, setCurrentShift] = useState<Shift | null>(null);
-  
+  const auth = getAuth(app);
 
   // Auth state observer
   useEffect(() => {
@@ -174,6 +179,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <AuthContext.Provider
       value={{
+        auth,
         user,
         isAuthenticated: !!user,
         login,

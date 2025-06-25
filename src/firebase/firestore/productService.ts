@@ -1,4 +1,4 @@
-import { db } from '../firebase-config';
+import { db } from '../../firebase-config';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, DocumentData, QueryDocumentSnapshot, Timestamp } from 'firebase/firestore';
 
 export interface Product {

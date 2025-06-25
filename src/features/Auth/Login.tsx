@@ -1,14 +1,15 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "../UI/input";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const { auth } = useAuth();
   const navigate = useNavigate();
 
@@ -17,9 +18,9 @@ const Login: React.FC = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error logging in:", error);
-      // TODO: Display error message to the user
+      setErrorMsg("Invalid email or password");
     }
   };
 
@@ -40,6 +41,9 @@ const Login: React.FC = () => {
               <label htmlFor="password">Password</label>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
+            {errorMsg && (
+              <p className="text-sm text-red-500">{errorMsg}</p>
+            )}
             <Button type="submit" className="w-full">Login</Button>
           </form>
         </CardContent>
