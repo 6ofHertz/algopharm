@@ -9,7 +9,6 @@ import {
   LogOut, 
   Search, 
   Settings, 
-  User, 
   Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
+import { FactGenerator } from "@/components/common/FactGenerator";
 
 export const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -99,108 +99,113 @@ export const DashboardLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-background">
-        {/* Sidebar */}
-        <div className={cn(
-          "h-screen bg-background border-r transition-all duration-300 flex flex-col",
-          sidebarOpen ? "w-64" : "w-16"
-        )}>
-          {/* Logo section */}
-          <div className="pt-6 pb-2 px-4">
-            <div className="flex items-center">
-              <div className="pill-gradient p-1.5 rounded-md mr-2">
-                <Barcode className="h-5 w-5 text-white" />
+      <div className="flex flex-col h-screen w-full overflow-hidden bg-background">
+        {/* Top banner with fact */}
+        <FactGenerator />
+        
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar */}
+          <div className={cn(
+            "h-full bg-background border-r transition-all duration-300 flex flex-col",
+            sidebarOpen ? "w-64" : "w-16"
+          )}>
+            {/* Logo section */}
+            <div className="pt-6 pb-2 px-4">
+              <div className="flex items-center">
+                <div className="pill-gradient p-1.5 rounded-md mr-2">
+                  <Barcode className="h-5 w-5 text-white" />
+                </div>
+                {sidebarOpen && <h1 className="text-xl font-bold text-pill-500">APOTHEKE Pro</h1>}
               </div>
-              {sidebarOpen && <h1 className="text-xl font-bold text-pill-500">APOTHEKE Pro</h1>}
             </div>
-          </div>
-          
-          {/* Navigation links */}
-          <div className="flex-1 overflow-y-auto py-2">
-            <div className="space-y-1">
-              <div className="px-3 py-2">
-                {filteredNavigation.map((item) => (
-                  <Button
-                    key={item.id}
-                    variant={activeItem === item.id ? "secondary" : "ghost"}
-                    className={cn(
-                      "w-full justify-start mb-1 transition-all duration-300",
-                      activeItem === item.id 
-                        ? "bg-pill-200 text-pill-700 dark:bg-pill-900 dark:text-pill-300" 
-                        : "",
-                      "hover:shadow-[0_0_8px_rgba(218,165,32,0.3)]"
-                    )}
-                    onClick={() => handleNavigation(item.path, item.id)}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    {sidebarOpen && <span className="ml-2">{item.name}</span>}
+            
+            {/* Navigation links */}
+            <div className="flex-1 overflow-y-auto py-2">
+              <div className="space-y-1">
+                <div className="px-3 py-2">
+                  {filteredNavigation.map((item) => (
+                    <Button
+                      key={item.id}
+                      variant={activeItem === item.id ? "secondary" : "ghost"}
+                      className={cn(
+                        "w-full justify-start mb-1 transition-all duration-300",
+                        activeItem === item.id 
+                          ? "bg-pill-200 text-pill-700 dark:bg-pill-900 dark:text-pill-300" 
+                          : "",
+                        "hover:shadow-[0_0_8px_rgba(218,165,32,0.3)]"
+                      )}
+                      onClick={() => handleNavigation(item.path, item.id)}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {sidebarOpen && <span className="ml-2">{item.name}</span>}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* User section */}
+            <div>
+              <Separator className="my-4" />
+              <div className="px-3 pb-4">
+                {sidebarOpen ? (
+                  <UserMenu user={{
+                    name: user?.name || "User",
+                    role: user?.role || "guest",
+                    initials: user?.name?.split(' ').map(n => n[0]).join('') || "U"
+                  }} />
+                ) : (
+                  <Button variant="ghost" className="w-full flex justify-center" onClick={() => setSidebarOpen(true)}>
+                    <Menu className="h-5 w-5" />
                   </Button>
-                ))}
+                )}
+                
+                {/* Logout button */}
+                {sidebarOpen ? (
+                  <Button 
+                    variant="destructive" 
+                    className="mt-2 w-full" 
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="destructive" 
+                    className="mt-2 w-full flex justify-center"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                )}
               </div>
             </div>
           </div>
-          
-          {/* User section */}
-          <div>
-            <Separator className="my-4" />
-            <div className="px-3 pb-4">
-              {sidebarOpen ? (
-                <UserMenu user={{
-                  name: user?.name || "User",
-                  role: user?.role || "guest",
-                  initials: user?.name?.split(' ').map(n => n[0]).join('') || "U"
-                }} />
-              ) : (
-                <Button variant="ghost" className="w-full flex justify-center" onClick={() => setSidebarOpen(true)}>
-                  <User className="h-5 w-5" />
-                </Button>
-              )}
-              
-              {/* Logout button */}
-              {sidebarOpen ? (
-                <Button 
-                  variant="destructive" 
-                  className="mt-2 w-full" 
-                  onClick={handleLogout}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </Button>
-              ) : (
-                <Button 
-                  variant="destructive" 
-                  className="mt-2 w-full flex justify-center"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="h-5 w-5" />
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
 
-        {/* Main content */}
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex h-14 items-center gap-4 border-b bg-background px-6">
-            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-              <Menu className="h-5 w-5" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-lg font-semibold">
-                {filteredNavigation.find((item) => item.id === activeItem)?.name || "APOTHEKE Pro"}
-              </h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <Button variant="outline" size="icon" onClick={handleSearch}>
-                <Search className="h-5 w-5" />
-                <span className="sr-only">Search</span>
+          {/* Main content */}
+          <div className="flex flex-col flex-1 overflow-hidden">
+            <header className="flex h-14 items-center gap-4 border-b bg-background px-6">
+              <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+                <Menu className="h-5 w-5" />
               </Button>
-            </div>
-          </header>
-          <main className="flex-1 overflow-y-auto p-6">
-            <Outlet />
-          </main>
+              <div className="flex-1">
+                <h1 className="text-lg font-semibold">
+                  {filteredNavigation.find((item) => item.id === activeItem)?.name || "APOTHEKE Pro"}
+                </h1>
+              </div>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Button variant="outline" size="icon" onClick={handleSearch}>
+                  <Search className="h-5 w-5" />
+                  <span className="sr-only">Search</span>
+                </Button>
+              </div>
+            </header>
+            <main className="flex-1 overflow-y-auto p-6">
+              <Outlet />
+            </main>
+          </div>
         </div>
       </div>
     </SidebarProvider>

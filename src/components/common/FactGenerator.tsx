@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, ChevronLeft, ChevronRight } from "lucide-react";
-import { toast } from "sonner";
+import { Lightbulb, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 export const FactGenerator = () => {
   const [fact, setFact] = useState("");
-  const [showFact, setShowFact] = useState(false);
+  const [showFact, setShowFact] = useState(true);
   const [currentFactIndex, setCurrentFactIndex] = useState(0);
   
   const facts = [
@@ -25,54 +24,50 @@ export const FactGenerator = () => {
     "Poison control centers handle over 2 million calls annually in the US alone."
   ];
   
-  const generateFact = () => {
+  useEffect(() => {
     setFact(facts[currentFactIndex]);
-    setShowFact(true);
-  };
+  }, [currentFactIndex]);
 
   const nextFact = () => {
     const nextIndex = (currentFactIndex + 1) % facts.length;
     setCurrentFactIndex(nextIndex);
-    setFact(facts[nextIndex]);
-    setShowFact(true);
   };
   
   const previousFact = () => {
     const prevIndex = (currentFactIndex - 1 + facts.length) % facts.length;
     setCurrentFactIndex(prevIndex);
-    setFact(facts[prevIndex]);
-    setShowFact(true);
+  };
+
+  const closeBanner = () => {
+    setShowFact(false);
   };
   
+  if (!showFact) return null;
+  
   return (
-    <div className="fixed top-4 right-4 z-50">
-      <Button 
-        onClick={generateFact} 
-        size="sm" 
-        variant="outline" 
-        className="pill-gradient text-white flex gap-2 items-center hover:opacity-90"
-      >
-        <Lightbulb className="h-4 w-4" />
-        Did You Know?
-      </Button>
-      
-      {showFact && (
-        <div 
-          className="absolute top-12 right-0 w-64 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border border-border"
-        >
-          <p className="text-sm mb-2">{fact}</p>
-          <div className="flex justify-between mt-2">
-            <Button size="sm" variant="ghost" onClick={previousFact}>
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </Button>
-            <Button size="sm" variant="ghost" onClick={nextFact}>
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+    <div className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-b border-border p-3">
+      <div className="flex items-center justify-between max-w-6xl mx-auto">
+        <div className="flex items-center gap-3 flex-1">
+          <div className="pill-gradient p-2 rounded-full">
+            <Lightbulb className="h-4 w-4 text-white" />
+          </div>
+          <div className="flex-1">
+            <span className="text-sm font-medium text-muted-foreground">Did You Know?</span>
+            <p className="text-sm text-foreground">{fact}</p>
           </div>
         </div>
-      )}
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="ghost" onClick={previousFact}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button size="sm" variant="ghost" onClick={nextFact}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button size="sm" variant="ghost" onClick={closeBanner}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

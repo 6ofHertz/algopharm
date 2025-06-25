@@ -1,15 +1,9 @@
 
 import React from "react";
 import { RoleDashboard } from "@/components/dashboard/RoleDashboard";
-import { FactGenerator } from "@/components/common/FactGenerator";
 
 const Dashboard = () => {
-  return (
-    <>
-      <FactGenerator />
-      <RoleDashboard />
-    </>
-  );
+  return <RoleDashboard />;
 };
 
 export default Dashboard;
