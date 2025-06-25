@@ -6,8 +6,11 @@ import { Toaster } from 'sonner';
 
 // Import components
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import Landing from '@/features/Landing/Landing';
+import GetStarted from '@/features/Onboarding/GetStarted';
 import Login from '@/features/Auth/Login';
 import Dashboard from '@/features/Dashboard';
+import FunctionalDashboard from '@/features/Dashboard/FunctionalDashboard';
 import POS from '@/features/POS';
 import Inventory from '@/features/Inventory';
 import Accounting from '@/features/Accounting';
@@ -23,11 +26,15 @@ function App() {
         <Router>
           <div className="min-h-screen bg-background">
             <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/home" element={<Landing />} />
+              <Route path="/landing" element={<Landing />} />
+              <Route path="/get-started" element={<GetStarted />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route element={<ProtectedRoute />}>
                 <Route element={<DashboardLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/management" element={<FunctionalDashboard />} />
                   <Route path="/pos" element={<POS />} />
                   <Route path="/inventory" element={<Inventory />} />
                   <Route path="/accounting" element={<Accounting />} />

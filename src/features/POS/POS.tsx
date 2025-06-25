@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/contexts/AuthContext";
 import { salesService } from "@/services/salesService";
 
@@ -99,7 +99,7 @@ export const POS = () => {
           product_name: item.name,
           amount: item.price * item.quantity,
           quantity: item.quantity,
-          cashier_id: user?.id || 'unknown' // Use user.id instead of user.uid
+          cashier_id: user?.id || 'unknown'
         });
       }
 
@@ -144,25 +144,23 @@ export const POS = () => {
             <CardDescription>Items in current sale</CardDescription>
           </CardHeader>
           <CardContent className="overflow-auto">
-            <ScrollArea className="h-[50vh] w-full rounded-md border">
-              <div className="p-4">
-                {currentSale.items.length === 0 ? (
-                  <p>No items in cart</p>
-                ) : (
-                  currentSale.items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between mb-2">
-                      <span>
-                        {item.name} x {item.quantity}
-                      </span>
-                      <span>${item.price * item.quantity}</span>
-                      <Button variant="ghost" size="sm" onClick={() => removeItem(item.id)}>
-                        Remove
-                      </Button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </ScrollArea>
+            <div className="h-[50vh] w-full rounded-md border p-4">
+              {currentSale.items.length === 0 ? (
+                <p>No items in cart</p>
+              ) : (
+                currentSale.items.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between mb-2">
+                    <span>
+                      {item.name} x {item.quantity}
+                    </span>
+                    <span>${item.price * item.quantity}</span>
+                    <Button variant="ghost" size="sm" onClick={() => removeItem(item.id)}>
+                      Remove
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
           </CardContent>
           <div className="p-4 mt-auto">
             <div className="flex justify-between items-center mb-4">
