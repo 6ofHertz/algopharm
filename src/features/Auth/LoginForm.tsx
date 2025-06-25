@@ -1,7 +1,7 @@
 
 import { Button } from "@/features/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/features/UI/card";
-import { Input } from "@/features/UI/input";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/features/UI/label";
 import { useAuth } from "@/features/Auth/AuthContext";
 import { cn } from "@/features/lib/utils";
