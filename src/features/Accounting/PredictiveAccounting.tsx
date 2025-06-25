@@ -8,10 +8,20 @@ import {
 } from '@/features/UI/card';
 import { Button } from '@/features/UI/button';
 import { Badge } from '@/features/UI/badge';
-import { TrendingUp, TrendingDown, DollarSign, Calendar, BarChart3, PieChart, Activity, AlertTriangle } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Calendar, BarChart3, PieChart, Activity, AlertTriangle, Brain, LineChart, Lightbulb, AlertCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/UI/select';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/features/UI/progress';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from 'recharts';
 
 export const PredictiveAccounting = () => {
   // Sample cash flow forecast data

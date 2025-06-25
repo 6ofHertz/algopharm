@@ -8,9 +8,18 @@ import {
 } from '@/features/UI/card';
 import { Button } from '@/features/UI/button';
 import { Badge } from '@/features/UI/badge';
-import { Calendar } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/UI/select';
+import { ClipboardCheck, ShieldCheck, AlertCircle, LockKeyhole, CheckCircle, FileCheck } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from '@/features/UI/select';
 import { Input } from '@/components/ui/input';
+import { Search as SearchIcon } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/features/UI/table';
 
 export const AuditCompliance = () => {
   const [selectedAuditLog, setSelectedAuditLog] = useState<string | null>(null);
