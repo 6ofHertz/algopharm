@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Sidebar, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -150,9 +149,9 @@ export const DashboardLayout = () => {
               <div className="px-3 pb-4">
                 {sidebarOpen ? (
                   <UserMenu user={{
-                    name: user?.name || "User",
+                    name: user?.name || user?.email?.split('@')[0] || "User",
                     role: user?.role || "guest",
-                    initials: user?.name?.split(' ').map(n => n[0]).join('') || "U"
+                    initials: (user?.name || user?.email)?.split(' ').map(n => n[0]).join('') || "U"
                   }} />
                 ) : (
                   <Button variant="ghost" className="w-full flex justify-center" onClick={() => setSidebarOpen(true)}>

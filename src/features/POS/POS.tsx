@@ -1,164 +1,180 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { getProducts, Product } from "../../firebase/firestore/productService";
-import { collection, doc, runTransaction } from 'firebase/firestore'; // Import Firestore functions
-import { db } from "../../firebase-config"; // Import db
-import { useAuth } from '../../contexts/AuthContext'; // Import useAuth hook
+import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/contexts/AuthContext";
+import { salesService } from "@/services/salesService";
 
-const POS: React.FC = () => {
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+}
+
+interface SaleItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface Sale {
+  items: SaleItem[];
+  total: number;
+}
+
+export const POS = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchTerm, setSearchTerm] = useState(''); // State for search term
-  const [cartItems, setCartItems] = useState<{ product: Product, quantity: number }[]>([]);
+  const [scannedCode, setScannedCode] = useState("");
+  const [currentSale, setCurrentSale] = useState<Sale>({ items: [], total: 0 });
+  const { user } = useAuth();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productsData = await getProducts();
-        setProducts(productsData);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
+    // Mock product data for demonstration
+    const mockProducts: Product[] = [
+      { id: "1", name: "Paracetamol", price: 5.00, stock: 100 },
+      { id: "2", name: "Bandage", price: 2.50, stock: 50 },
+      { id: "3", name: "Antiseptic", price: 7.50, stock: 75 },
+    ];
+    setProducts(mockProducts);
+  }, []);
 
-    fetchProducts();
-  }, []); // Empty dependency array means this effect runs once on mount
-
-  const { user } = useAuth(); // Get the authenticated user
-
-  const addToCart = (product: Product) => {
-    setCartItems(prevItems => {
-      const existingItemIndex = prevItems.findIndex(item => item.product.id === product.id);
-
-      if (existingItemIndex > -1) {
-        const newItems = [...prevItems];
-        newItems[existingItemIndex].quantity += 1;
-        return newItems;
-      } else {
-        return [...prevItems, { product, quantity: 1 }];
-      }
-    });
+  const handleScan = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setScannedCode(e.target.value);
   };
 
-  const removeFromCart = (productId: string) => {
-    setCartItems(prevItems => {
-      const existingItemIndex = prevItems.findIndex(item => item.product.id === productId);
-
-      if (existingItemIndex > -1) {
-        const newItems = [...prevItems];
-        if (newItems[existingItemIndex].quantity > 1) {
-          newItems[existingItemIndex] = {
-            ...newItems[existingItemIndex],
-            quantity: newItems[existingItemIndex].quantity - 1,
-          };
-        } else {
-          newItems.splice(existingItemIndex, 1);
-        }
-        return newItems;
-      }
-      return prevItems; // Should not happen if button is only on items in cart
-    });
-  };
-
-  // Filter products based on search term
-  const filteredProducts = useMemo(() => {
-    return products.filter(product =>
- product.name.toLowerCase().includes(searchTerm.toLowerCase())
- );
-  }, [products, searchTerm]);
-  const handleCheckout = async () => {
-    // Ensure user is authenticated before proceeding
-    if (!user) {
-      alert("You must be logged in to checkout.");
-      return;
-    }
-
-    if (cartItems.length === 0) {
-      alert("Cart is empty!");
-      return;
-    }
-
-    // Use Firestore Transaction for atomic updates
-    try {
-      await runTransaction(db, async (transaction) => {
-        // Check stock and update inventory within the transaction
-        for (const item of cartItems) {
-          const productRef = doc(db, "products", item.product.id!);
-          const productDoc = await transaction.get(productRef);
-
-          if (!productDoc.exists()) {
-            throw new Error(`Product with ID ${item.product.id} not found.`);
-          }
-
-          const currentQuantity = productDoc.data()!.quantity;
-          const newQuantity = currentQuantity - item.quantity;
-
-          if (newQuantity < 0) {
-            throw new Error(`Insufficient stock for ${item.product.name}. Available: ${currentQuantity}`);
-          }
-
-          // Update quantity within the transaction
-          transaction.update(productRef, { quantity: newQuantity });
-        }
-
-        // Add the sale document within the transaction
-        const salesRef = collection(db, "sales");
-        transaction.set(doc(salesRef), {
-          items: cartItems.map(item => ({
-            id: item.product.id,
-            name: item.product.name,
-            quantity: item.quantity,
-            price: item.product.price,
-          })),
-          total: total,
-          cashierId: user.uid, // Add the cashier's user ID
-          timestamp: new Date(),
+  const addItemToSale = () => {
+    const product = products.find((p) => p.id === scannedCode);
+    if (product) {
+      const existingItem = currentSale.items.find((item) => item.id === product.id);
+      if (existingItem) {
+        const updatedItems = currentSale.items.map((item) =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+        setCurrentSale({
+          items: updatedItems,
+          total: updatedItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
         });
-      });
-
-      setCartItems([]); // Clear the cart on successful checkout
-      alert("Checkout successful!"); // Provide user feedback
-    } catch (error) {
-      console.error("Error during checkout:", error);
-      alert(`Checkout failed: ${error.message}`); // Provide user feedback
+      } else {
+        const newItem: SaleItem = {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+        };
+        setCurrentSale({
+          items: [...currentSale.items, newItem],
+          total: currentSale.total + newItem.price,
+        });
+      }
+      setScannedCode("");
+    } else {
+      toast.error("Product not found");
     }
   };
 
-  const total = useMemo(() => {
-    return cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  }, [cartItems]);
+  const removeItem = (id: string) => {
+    const itemToRemove = currentSale.items.find((item) => item.id === id);
+    if (itemToRemove) {
+      const updatedItems = currentSale.items.filter((item) => item.id !== id);
+      setCurrentSale({
+        items: updatedItems,
+        total: updatedItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+      });
+    }
+  };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+  const handleSale = async () => {
+    if (!currentSale || currentSale.items.length === 0) {
+      toast.error("No items in cart");
+      return;
+    }
+
+    try {
+      for (const item of currentSale.items) {
+        await salesService.createSale({
+          product_name: item.name,
+          amount: item.price * item.quantity,
+          quantity: item.quantity,
+          cashier_id: user?.id || 'unknown' // Use user.id instead of user.uid
+        });
+      }
+
+      toast.success("Sale completed successfully!");
+      setCurrentSale({ items: [], total: 0 });
+      setScannedCode("");
+    } catch (error) {
+      console.error("Error processing sale:", error);
+      toast.error("Failed to process sale");
+    }
   };
 
   return (
- <div>
-      <h1>Point of Sale</h1>
-
-      <input type="text" placeholder="Search products..." value={searchTerm} onChange={handleSearchChange} /> {/* Search input field */}
-      <h2>Available Products</h2> {/* Consider adding search functionality here */}
-      <ul>
-        {products.map(product => (
-          <li key={product.id}>{product.name} - ${product.price}{' '}
- <button onClick={() => addToCart(product)}>Add to Cart</button>
-          </li>
-        ))}
-      </ul> {/* Map over filteredProducts */}
-
-      <h2>Cart</h2>
-      <ul>
-        {cartItems.map((item) => (
-          <li key={item.product.id}> {/* Use item.product.id directly as it's guaranteed to exist here */}
-            {item.product.name} x {item.quantity} - ${(item.product.price * item.quantity).toFixed(2)}
- <button onClick={() => removeFromCart(item.product.id!)}>Remove</button>
-          </li>
-        ))}
-      </ul>
-
-      <h3>Total: ${total.toFixed(2)}</h3>
-
- <button onClick={handleCheckout}>Checkout</button>
- </div>
+    <div className="flex h-full">
+      <div className="w-1/2 p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Point of Sale</CardTitle>
+            <CardDescription>Scan or enter product code</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              <div className="flex items-center">
+                <Input
+                  type="text"
+                  placeholder="Scan product code"
+                  value={scannedCode}
+                  onChange={handleScan}
+                />
+                <Button className="ml-2" onClick={addItemToSale}>
+                  Add
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="w-1/2 p-4">
+        <Card className="h-full flex flex-col">
+          <CardHeader>
+            <CardTitle>Current Sale</CardTitle>
+            <CardDescription>Items in current sale</CardDescription>
+          </CardHeader>
+          <CardContent className="overflow-auto">
+            <ScrollArea className="h-[50vh] w-full rounded-md border">
+              <div className="p-4">
+                {currentSale.items.length === 0 ? (
+                  <p>No items in cart</p>
+                ) : (
+                  currentSale.items.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between mb-2">
+                      <span>
+                        {item.name} x {item.quantity}
+                      </span>
+                      <span>${item.price * item.quantity}</span>
+                      <Button variant="ghost" size="sm" onClick={() => removeItem(item.id)}>
+                        Remove
+                      </Button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+          <div className="p-4 mt-auto">
+            <div className="flex justify-between items-center mb-4">
+              <span>Total:</span>
+              <span>${currentSale.total.toFixed(2)}</span>
+            </div>
+            <Button className="w-full" onClick={handleSale}>
+              Complete Sale
+            </Button>
+          </div>
+        </Card>
+      </div>
+    </div>
   );
 };
-
-export default POS;

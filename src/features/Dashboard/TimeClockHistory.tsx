@@ -42,12 +42,11 @@ const formatDuration = (startTime: number, endTime: number | undefined): string 
 
 export const TimeClockHistory: React.FC = () => {
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
-  const { user: currentUser, login, logout, isAuthenticated, hasRole, ...authContext } = useAuth();
+  const { user: currentUser, hasRole, ...authContext } = useAuth();
 
    // Assuming authContext might have a way to access all users or you have mock data
    // For this client-side example, we'll use mock users from the AuthProvider if available
    const mockUsers = (authContext as any).mockUsers || {}; // Access mockUsers if exposed
-
 
   useEffect(() => {
     const storedEntries = localStorage.getItem("timeEntries");
@@ -61,7 +60,6 @@ export const TimeClockHistory: React.FC = () => {
       const user = Object.values(mockUsers).find((u: any) => u.id === userId) as any;
       return user ? user.name : 'Unknown User';
     };
-
 
   return (
     <div>
