@@ -86,67 +86,67 @@ export const CashierDashboard = () => {
           }
   };
   return (
-    <div>
- <div className="flex items-center justify-between">
- <h2 className="text-3xl font-bold">Cashier Dashboard</h2>
+ <div className="flex-1 space-y-4 p-8 pt-6">
+ <div className="flex items-center justify-between space-y-2">
+ <h2 className="text-3xl font-bold tracking-tight">Cashier Dashboard</h2>
  <AskAI userRole="cashier" />
-      </div>
+ </div>
 
-      {/* Main dashboard cards with staggered animation */}
-      <motion.div 
-        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
-        <motion.div variants={itemVariants}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Sales</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$1,284.39</div>
-            <p className="text-xs text-muted-foreground">+18.1% from yesterday</p>
-          </CardContent>
-        </Card>
-        </motion.div>
+ {/* Main dashboard cards with staggered animation */}
+ <motion.div
+ className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+ initial="hidden"
+ animate="visible"
+ variants={containerVariants}
+ >
+ <motion.div variants={itemVariants}>
+ <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+ <CardTitle className="text-sm font-medium">Today's Sales</CardTitle>
+ <DollarSign className="h-4 w-4 text-muted-foreground" />
+ </CardHeader>
+ <CardContent>
+ <div className="text-2xl font-bold">$1,284.39</div>
+ <p className="text-xs text-muted-foreground">+18.1% from yesterday</p>
+ </CardContent>
+ </Card>
+ </motion.div>
 
-        <motion.div variants={itemVariants}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Transactions</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">24</div>
-            <p className="text-xs text-muted-foreground">Today's completed transactions</p>
-          </CardContent>
-        </Card>
-        </motion.div>
+ <motion.div variants={itemVariants}>
+ <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+ <CardTitle className="text-sm font-medium">Transactions</CardTitle>
+ <Receipt className="h-4 w-4 text-muted-foreground" />
+ </CardHeader>
+ <CardContent>
+ <div className="text-2xl font-bold">24</div>
+ <p className="text-xs text-muted-foreground">Today's completed transactions</p>
+ </CardContent>
+ </Card>
+ </motion.div>
 
-        <motion.div variants={itemVariants}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Customers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">19</div>
-            <p className="text-xs text-muted-foreground">4 new customers today</p>
-          </CardContent>
-        </Card>
-        </motion.div>
+ <motion.div variants={itemVariants}>
+ <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+ <CardTitle className="text-sm font-medium">Customers</CardTitle>
+ <Users className="h-4 w-4 text-muted-foreground" />
+ </CardHeader>
+ <CardContent>
+ <div className="text-2xl font-bold">19</div>
+ <p className="text-xs text-muted-foreground">4 new customers today</p>
+ </CardContent>
+ </Card>
+ </motion.div>
 
-        <motion.div variants={itemVariants}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Prescriptions</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">7</div>
-            <p className="text-xs text-muted-foreground">Awaiting pickup</p>
-          </CardContent>
-        </Card>
-        </motion.div>
-      </motion.div>
+ <motion.div variants={itemVariants}>
+ <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+ <CardTitle className="text-sm font-medium">Prescriptions</CardTitle>
+ <Package className="h-4 w-4 text-muted-foreground" />
+ </CardHeader>
+ <CardContent>
+ <div className="text-2xl font-bold">7</div>
+ <p className="text-xs text-muted-foreground">Awaiting pickup</p>
+ </CardContent>
+ </Card>
+ </motion.div>
+ </motion.div>
       
       {/* Quick Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -332,6 +332,6 @@ export const CashierDashboard = () => {
       </Tabs>
       
       <UserInfoBar />
-    </div>
+ </div>
   );
 };
