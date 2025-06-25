@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,8 +16,12 @@ import { AIAnalytics } from "@/components/dashboard/admin/AIAnalytics";
 import { PerformanceMetrics } from "@/components/dashboard/admin/PerformanceMetrics";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AskAI from "@/features/AskAI/AskAI.tsx";
+import AskAI from "@/features/AskAI";
 import ShiftOverview from "./ShiftOverview";
+import UserPerformance from "./UserPerformance";
+import { SystemSettings } from "@/components/dashboard/admin/Settings";
+import { InventoryReport } from "@/components/dashboard/admin/InventoryReport";
+import { UserInfoBar } from "@/components/common/UserInfoBar";
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -47,7 +50,6 @@ export const AdminDashboard = () => {
           </CardContent>
         </Card>
 
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">System Status</CardTitle>
@@ -59,7 +61,6 @@ export const AdminDashboard = () => {
           </CardContent>
         </Card>
         <Card>
-
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
             <BarChart className="h-4 w-4 text-muted-foreground" />
@@ -70,7 +71,6 @@ export const AdminDashboard = () => {
           </CardContent>
         </Card>
         <Card>
-
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
@@ -83,7 +83,6 @@ export const AdminDashboard = () => {
       </div>
       
       <Tabs defaultValue="management">
-
         <TabsList>
           <TabsTrigger value="management">Management</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
@@ -91,7 +90,6 @@ export const AdminDashboard = () => {
           <TabsTrigger value="ai">AI Assistant</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
         </TabsList>
-
 
         <TabsContent value="management" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -277,11 +275,10 @@ export const AdminDashboard = () => {
               <CardTitle>AI Assistant</CardTitle>
               <CardDescription>
                 Get intelligent insights from your pharmacy data
-
               </CardDescription>
             </CardHeader>
               <CardContent>
-              <AskAI userRole="admin"/>
+              <AskAI />
             </CardContent>
           </Card>
           
