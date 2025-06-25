@@ -1,12 +1,11 @@
+
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
 import './index.css'
+import App from './App.tsx'
 
-// ✅ Keep only the global ErrorBoundary import
-import ErrorBoundary from '@/features/components/ErrorBoundary.tsx'
-
-createRoot(document.getElementById("root")!).render(
-  <ErrorBoundary>
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
     <App />
-  </ErrorBoundary>
-);
+  </StrictMode>,
+)

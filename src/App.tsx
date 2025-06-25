@@ -1,52 +1,43 @@
 
-import React from "react";
-import { HashRouter, Route, Routes } from "react-router-dom";
-import { Toaster } from "sonner";
-import "./index.css";
-import { ThemeProvider } from "@/features/Theme/theme-provider";
-import Login from "@/features/Auth/Login";
-import DashboardLayout from "@/features/Layout/DashboardLayout";
-import { AuthProvider } from "@/features/Auth/AuthContext";
-import { ProtectedRoute } from "@/features/Auth/ProtectedRoute";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ThemeProvider } from '@/components/theme/theme-provider';
+import { Toaster } from 'sonner';
 
-import Dashboard from "@/features/Dashboard/Dashboard";
-import Inventory from "@/features/Inventory/Inventory";
-import Calendar from "@/features/Calendar/Calendar";
-import POS from "@/features/POS/POS";
-import Settings from "@/features/Settings";
-import Accounting from "@/features/Accounting/pages/Accounting";
-import AskAI from "@/features/AskAI/AskAI";
-import Index from "@/features/Index/Index";
-import NotFound from "@/features/NotFound/NotFound";
+// Import components
+import DashboardLayout from '@/components/layout/DashboardLayout';
+import Login from '@/features/Auth/Login';
+import Dashboard from '@/features/Dashboard';
+import POS from '@/features/POS';
+import Inventory from '@/features/Inventory';
+import Accounting from '@/features/Accounting';
+import Settings from '@/features/Settings';
+import { ProtectedRoute } from '@/features/Auth/ProtectedRoute';
+
+import './App.css';
 
 function App() {
- return (
-    <ThemeProvider defaultTheme="light" storageKey="algopharm-theme">
+  return (
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <AuthProvider>
-        <Toaster />
-        <HashRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-
-            {/* Protected dashboard routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route element={<DashboardLayout />}>
-                <Route path="/ai" element={<AskAI />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/settings" element={<Settings />} />
-                {/* Cashier specific routes */}
-                <Route path="/pos" element={<POS />} />
-                {/* Pharmacist specific routes */}
-                <Route path="/inventory" element={<Inventory />} />
-                <Route path="/calendar" element={<Calendar />} />
-                {/* Admin specific routes */}
-                <Route path="/accounting" element={<Accounting />} />
+        <Router>
+          <div className="min-h-screen bg-background">
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route element={<ProtectedRoute />}>
+                <Route element={<DashboardLayout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/pos" element={<POS />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/accounting" element={<Accounting />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Route>
               </Route>
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </HashRouter>
+            </Routes>
+            <Toaster position="top-right" />
+          </div>
+        </Router>
       </AuthProvider>
     </ThemeProvider>
   );
