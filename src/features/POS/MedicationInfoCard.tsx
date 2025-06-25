@@ -1,5 +1,4 @@
-
-import { Medication } from "@/features/POS/POS";
+import { Medication } from "@/features/POS.tsx";
 import { Badge } from "@/features/UI/badge";
 import { Button } from "@/features/UI/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/features/UI/card";
@@ -8,6 +7,7 @@ import { Check, FlaskConical } from "lucide-react";
 import React, { useState } from "react";
 
 import { cn } from "@/features/lib/utils";
+
 interface MedicationInfoCardProps {
   medication: Medication;
   onAddToCart: () => void;

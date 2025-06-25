@@ -1,3 +1,4 @@
+
 // src/components/layout/UserMenu.tsx
 import React, { useState, useEffect } from 'react';
 import {
@@ -7,13 +8,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/features/ui/dropdown-menu'; // Updated path
+} from '@/features/UI/dropdown-menu'; // Updated path
 import { useAuth } from '@/features/Auth/AuthContext'; // Updated path
-// Note: Assuming pharmacyName is not standard and may need adjustment based on its location
-// Assuming Settings component is in features/Dashboard
-import { pharmacyName } from '@/features/Dashboard/Settings'; // Updated path (assuming)
 import { useNavigate } from 'react-router-dom';
-
 
 interface UserMenuProps {
   username: string;

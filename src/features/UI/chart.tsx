@@ -2,7 +2,7 @@
 import * as React from "react"
 import { ResponsiveContainer } from "recharts"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/features/lib/utils"
 
 const THEMES = { light: "", dark: ".dark" } as const
 
@@ -96,6 +96,13 @@ ${colorConfig
 const ChartTooltip = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
+    active?: boolean
+    payload?: Array<any>
+    label?: string
+    labelFormatter?: (label: any, payload: any) => React.ReactNode
+    labelClassName?: string
+    formatter?: (value: any, name: any, item: any, index: any, payload: any) => React.ReactNode
+    color?: string
     hideLabel?: boolean
     hideIndicator?: boolean
     indicator?: "line" | "dot" | "dashed"
