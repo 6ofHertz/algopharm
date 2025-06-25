@@ -14,7 +14,6 @@ import { Calculator, CreditCard, FileBarChart, FileText, Shield, TrendingUp, Wal
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-
 interface Sale {
   id: string;
   date: string;
@@ -37,6 +36,11 @@ interface Payslip {
 const Accounting = () => {
   const [currentDate] = useState(new Date());
   const formattedDate = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  }).format(currentDate);
 
   const mockSales: Sale[] = useMemo(() => [
     { id: 'sale-1', date: '2024-03-15', total: 150 },
@@ -63,24 +67,21 @@ const Accounting = () => {
       <TableCell><Button variant="outline">View</Button></TableCell>
     </TableRow>
   ));
+
   const renderInvoices = () => mockInvoices.map((invoice) => (
     <TableRow key={invoice.id}>
       <TableCell>{invoice.date}</TableCell>
       <TableCell>{invoice.client}</TableCell>
       <TableCell>${invoice.total}</TableCell>
       <TableCell><Button variant="outline">View</Button></TableCell>
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  }).format(currentDate);
+    </TableRow>
+  ));
 
   return (
     <motion.div className="flex flex-col items-center space-y-4 p-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.5 }}>
       <div className="w-full max-w-5xl">
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold tracking-tight">Accounting</h2>
-
           <div className="flex items-center space-x-2">
             <Button variant="outline" className="text-sm">
               End of Day Report
@@ -159,8 +160,8 @@ const Accounting = () => {
                 </TableBody>
               </Table>
             </CardContent>
-          </Card> </motion.div>
-
+          </Card>
+        </motion.div>
 
         <Tabs defaultValue="sales" className="space-y-4">
           <TabsList className="grid grid-cols-7 md:grid-cols-7 lg:grid-cols-7">
@@ -222,9 +223,9 @@ const Accounting = () => {
             <PredictiveAccounting />
           </TabsContent>
         </Tabs>
-        
       </div>
-    </motion.div>  );
+    </motion.div>
+  );
 };
 
 export default Accounting;

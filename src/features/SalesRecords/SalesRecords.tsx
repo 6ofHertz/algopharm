@@ -1,6 +1,7 @@
-import React, { useState, useEffect, DocumentSnapshot } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase-config';
-import { collection, query, getDocs, orderBy, where, Timestamp, QuerySnapshot, limit, startAfter } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, where, Timestamp, QuerySnapshot, limit, startAfter, DocumentSnapshot } from 'firebase/firestore';
 
 interface SaleItem {
   productId: string;
@@ -24,6 +25,7 @@ const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
+
 const SalesRecords: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [sales, setSales] = useState<Sale[]>([]);
@@ -33,6 +35,7 @@ const SalesRecords: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [salesPerPage] = useState<number>(10); // Number of sales per page
   const [lastVisible, setLastVisible] = useState<DocumentSnapshot | null>(null);
+
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const dateString = event.target.value;
     if (dateString) {
@@ -42,7 +45,7 @@ const SalesRecords: React.FC = () => {
     }
   };
 
-  const handleFilterGranularityChange = (event: React.ChangeEvent<HTMLSelectElement>) => { // Changed to SelectElement
+  const handleFilterGranularityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setFilterGranularity(event.target.value as 'day' | 'month' | 'year');
   };
 
@@ -118,7 +121,11 @@ const SalesRecords: React.FC = () => {
       <div>
         <label htmlFor="saleDate">Select Date:</label>
         <input
-          type="date" id="saleDate" value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''} onChange={handleDateChange}/>
+          type="date" 
+          id="saleDate" 
+          value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''} 
+          onChange={handleDateChange}
+        />
       </div>
 
       <div>
@@ -129,46 +136,51 @@ const SalesRecords: React.FC = () => {
           <option value="year">Year</option>
         </select>
       </div>
-        <table>
-          <thead>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Cashier ID</th>
+            <th>Items</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
             <tr>
-              <th>Date</th>
-              <th>Total</th>
-              <th>Cashier ID</th>
-              <th>Items</th>
+              <td colSpan={4}>Loading...</td> {/* Span all columns for loading message */}
             </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={4}>Loading...</td> {/* Span all columns for loading message */}
+          ) : sales.length === 0 ? (
+            <tr>
+              <td colSpan={4}>No sales records found.</td> {/* Span all columns */}
+            </tr>
+          ) : (
+            sales.map((sale) => (
+              <tr key={sale.id}>
+                <td>{formatDate(sale.timestamp.toDate())}</td>
+                <td>${sale.total.toFixed(2)}</td>
+                <td>{sale.cashierId}</td>
+                <td>
+                  <ul>
+                    {sale.items.map((item, index) => (
+                      <li key={index}>{item.name} (x{item.quantity}) - ${item.price.toFixed(2)} each</li>
+                    ))}
+                  </ul>
+                </td>
               </tr>
-            ) : sales.length === 0 ? (
-              <tr>
-                <td colSpan={4}>No sales records found.</td> {/* Span all columns */}
-              </tr>
-            ) : (
-              sales.map((sale) => (
-                <tr key={sale.id}>
-                  <td>{formatDate(sale.timestamp.toDate())}</td>
-                  <td>${sale.total.toFixed(2)}</td>
-                  <td>{sale.cashierId}</td>
-                  <td>
-                    <ul>
-                      {sale.items.map((item, index) => (<li key={index}>{item.name} (x{item.quantity}) - ${item.price.toFixed(2)} each</li>))}
-                    </ul>
-                  </td>
-                </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            ))
+          )}
+        </tbody>
+      </table>
+
+      {/* Add pagination controls */}
+      <div>
+        <button onClick={handlePreviousPage} disabled={currentPage === 1 || loading}>Previous</button>
+        <button onClick={handleNextPage} disabled={!lastVisible || loading}>Next</button>
+      </div>
     </div>
   );
 };
-// Add pagination controls
-<button onClick={handlePreviousPage} disabled={currentPage === 1 || loading}>Previous</button>
-      <button onClick={handleNextPage} disabled={!lastVisible || loading}>Next</button>
-
 
 export default SalesRecords;
