@@ -13,11 +13,11 @@ import Dashboard from "@/features/Dashboard/Dashboard";
 import Inventory from "@/features/Inventory/Inventory";
 import Calendar from "@/features/Calendar/Calendar";
 import POS from "@/features/POS/POS";
-import Settings from "@/features/Dashboard/Settings";
-import SettingsPage from "./pages/Settings.js";
+import Settings from "@/features/Settings";
 import Accounting from "@/features/Accounting/pages/Accounting";
 import AskAI from "@/features/AskAI/AskAI";
 import Index from "@/features/Index/Index";
+import NotFound from "@/features/NotFound/NotFound";
 
 function App() {
  return (
@@ -31,20 +31,20 @@ function App() {
 
             {/* Protected dashboard routes */}
             <Route element={<ProtectedRoute />}>
- <Route element={<DashboardLayout />}>
- <Route path="/ai" element={<AskAI />} />
- <Route path="/dashboard" element={<Dashboard />} />import NotFound from "@/features/NotFound/NotFound";
- <Route path="/settings" element={<SettingsPage />} />
- {/* Cashier specific routes */}
- <Route path="/pos" element={<POS />} />
- {/* Pharmacist specific routes */}
- <Route path="/inventory" element={<Inventory />} />
- <Route path="/calendar" element={<Calendar />} />
- {/* Admin specific routes */}
- <Route path="/accounting" element={<Accounting />} />
- </Route>
+              <Route element={<DashboardLayout />}>
+                <Route path="/ai" element={<AskAI />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/settings" element={<Settings />} />
+                {/* Cashier specific routes */}
+                <Route path="/pos" element={<POS />} />
+                {/* Pharmacist specific routes */}
+                <Route path="/inventory" element={<Inventory />} />
+                <Route path="/calendar" element={<Calendar />} />
+                {/* Admin specific routes */}
+                <Route path="/accounting" element={<Accounting />} />
+              </Route>
             </Route>
- <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>
       </AuthProvider>

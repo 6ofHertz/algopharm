@@ -1,18 +1,18 @@
 
 import React, { useState, useMemo } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/UI/tabs';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SalesReport } from '@/components/accounting/SalesReport';
-import { PaymentProcessing } from '@/components/accounting/PaymentProcessing';
-import { FinancialReporting } from '@/components/accounting/FinancialReporting';
-import { InsuranceBilling } from '@/components/accounting/InsuranceBilling';
-import { InventoryLedger } from "@/components/accounting/InventoryLedger";
-import { AuditCompliance } from "@/components/accounting/AuditCompliance";
-import { PredictiveAccounting } from "@/components/accounting/PredictiveAccounting";
+import { Card, CardContent, CardHeader, CardTitle } from '@/features/UI/card';
+import { SalesReport } from '@/features/Accounting/SalesReport';
+import { PaymentProcessing } from '@/features/Accounting/PaymentProcessing';
+import { FinancialReporting } from '@/features/Accounting/FinancialReporting';
+import { InsuranceBilling } from '@/features/Accounting/InsuranceBilling';
+import { InventoryLedger } from "@/features/Accounting/InventoryLedger";
+import { AuditCompliance } from "@/features/Accounting/AuditCompliance";
+import { PredictiveAccounting } from "@/features/Accounting/PredictiveAccounting";
 import { Calculator, CreditCard, FileBarChart, FileText, Shield, TrendingUp, Wallet } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from "@/features/UI/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/UI/table';
 
 interface Sale {
   id: string;
@@ -78,7 +78,13 @@ const Accounting = () => {
   ));
 
   return (
-    <motion.div className="flex flex-col items-center space-y-4 p-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.5 }}>
+    <motion.div 
+      className="flex flex-col items-center space-y-4 p-4" 
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      exit={{ opacity: 0, y: 20 }} 
+      transition={{ duration: 0.5 }}
+    >
       <div className="w-full max-w-5xl">
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold tracking-tight">Accounting</h2>
@@ -94,7 +100,12 @@ const Accounting = () => {
 
         <p className="text-muted-foreground">{formattedDate}</p>
 
-        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4" 
+          initial={{ opacity: 0, scale: 0.9 }} 
+          animate={{ opacity: 1, scale: 1 }} 
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <Card>
             <CardHeader>
               <CardTitle>Accounting Book</CardTitle>

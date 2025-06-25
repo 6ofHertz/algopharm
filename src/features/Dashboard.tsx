@@ -1,8 +1,8 @@
 
-import React from "react";
-import { RoleDashboard } from "@/components/dashboard/RoleDashboard";
+import React from 'react';
+import { RoleDashboard } from './Dashboard/RoleDashboard';
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   return <RoleDashboard />;
 };
 
