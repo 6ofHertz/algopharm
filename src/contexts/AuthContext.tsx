@@ -84,6 +84,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const logout = async () => {
+    // Clear local session data
+    const { clearSession } = await import('@/lib/localStorage/sessionManager');
+    clearSession();
+    
     const { error } = await supabase.auth.signOut()
     if (error) {
       throw error

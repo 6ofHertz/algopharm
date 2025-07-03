@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Sidebar, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SessionWarning } from "@/components/auth/SessionWarning";
 import { 
   Barcode, 
   Calendar, 
@@ -18,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { FactGenerator } from "@/components/common/FactGenerator";
 
 export const DashboardLayout = () => {
@@ -27,6 +29,9 @@ export const DashboardLayout = () => {
   const [activeItem, setActiveItem] = useState("");
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+  // Enable session timeout monitoring
+  useSessionTimeout();
   
   // Update active item when location changes
   useEffect(() => {
@@ -202,6 +207,7 @@ export const DashboardLayout = () => {
               </div>
             </header>
             <main className="flex-1 overflow-y-auto p-6">
+              <SessionWarning />
               <Outlet />
             </main>
           </div>
