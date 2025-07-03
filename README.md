@@ -172,6 +172,15 @@ APOTHEKE Pro is designed to be deployed in various environments:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Test Credentials
+
+For demonstration and testing purposes, you can use the following credentials:
+
+- **Admin:** admin@apothekepro.com / password123
+- **Pharmacist:** pharma@apothekepro.com / password123
+- **Cashier:** cashier@apothekepro.com / password123
+
+
 ## Acknowledgments
 
 - ShadCN UI for the component library

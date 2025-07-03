@@ -21,7 +21,6 @@ export const SmartLoginForm: React.FC<SmartLoginFormProps> = ({
 }) => {
   const [email, setEmail] = useState(prefilledCredential?.email || '');
   const [password, setPassword] = useState(prefilledCredential?.password || '');
-  const [employeeId, setEmployeeId] = useState(prefilledCredential?.employeeId || '');
   const [rememberMe, setRememberMe] = useState(!!prefilledCredential?.password);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,7 +32,6 @@ export const SmartLoginForm: React.FC<SmartLoginFormProps> = ({
     if (prefilledCredential) {
       setEmail(prefilledCredential.email);
       setPassword(prefilledCredential.password || '');
-      setEmployeeId(prefilledCredential.employeeId);
       setRememberMe(!!prefilledCredential.password);
     }
   }, [prefilledCredential]);
@@ -55,7 +53,6 @@ export const SmartLoginForm: React.FC<SmartLoginFormProps> = ({
           id: email, // Use email as ID for now
           email,
           password: rememberMe ? password : undefined,
-          employeeId,
           name: prefilledCredential?.name || email.split('@')[0],
           role: prefilledCredential?.role,
           avatarUrl: prefilledCredential?.avatarUrl
@@ -106,17 +103,6 @@ export const SmartLoginForm: React.FC<SmartLoginFormProps> = ({
 
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="employeeId">Employee ID</Label>
-              <Input
-                id="employeeId"
-                type="text"
-                placeholder="Enter your employee ID"
-                value={employeeId}
-                onChange={(e) => setEmployeeId(e.target.value)}
-                required
-              />
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

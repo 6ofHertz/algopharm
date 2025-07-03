@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-
-// Define the shape of the authentication context
+import { supabase } from '@lib/supabaseClient';
+// Corrected UserRole definition and moved to be exported
+export type UserRole = "cashier" | "pharmacist" | "admin" | "manager";
 interface AuthContextType {
   user: User | null; // Replace 'any' with your actual user type
   login: (userData: any) => Promise<void>; // Replace 'any' with your login data type
   logout: () => void;
+  register: (...args: any[]) => Promise<void>;
 }
 
-// Define a User interface
+// Define a User interface with role
 interface User {
   id: string | number;
   role: string;
@@ -54,6 +56,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
+  const register = async (name: string, email: string, password: string, role: UserRole) => {
+    try {
+      const { user, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (user) {
+        // Generate a simple unique employee ID (you might want a more robust method)
+        const employee_id = Date.now().toString(); 
+
+        const { data, error: insertError } = await supabase.from('users').insert([
+          { id: user.id, name, role, employee_id },
+        ]);
+        
+        if (insertError) {
+          throw insertError;
+        }
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error; // Re-throw the error to be caught by the component
+    }
+  };
+
   // Load user from storage on component mount
   useEffect(() => {
     const token = localStorage.getItem('jwt_token');
@@ -79,7 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []); // Empty dependency array means this effect runs once on mount
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

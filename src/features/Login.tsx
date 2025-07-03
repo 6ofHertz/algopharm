@@ -30,7 +30,7 @@ const Login = () => {
   // Quick login buttons for demonstration purposes
   const quickLogin = (role: "owner" | "pharmacist" | "cashier") => {
     setUserRole(role);
-    setEmail(role === "owner" ? "admin@Apotheke.com" : role === "pharmacist" ? "pharma@Apotheke.com" : "cashier@Apotheke.com");
+    setEmail(role === "owner" ? "admin@apothekepro.com" : role === "pharmacist" ? "pharma@apothekepro.com" : "cashier@apothekepro.com");
     setPassword("password123");
   };
 

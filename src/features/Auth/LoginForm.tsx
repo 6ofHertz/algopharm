@@ -89,7 +89,7 @@ export const LoginForm = () => {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => {
+                  onClick={() => { 
                     setEmail("cashier@apothekepro.com");
                     setPassword("password123");
                   }}

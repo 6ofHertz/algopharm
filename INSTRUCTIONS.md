@@ -134,7 +134,7 @@ Primary Focus: Business operations, staff management, and system control.
 
 #### Installation
 **Linux/macOS:**
-```bash
+
 sudo apt-get install postgresql postgresql-contrib  # Debian/Ubuntu
 brew install postgresql                            # macOS
 ```
@@ -143,7 +143,7 @@ brew install postgresql                            # macOS
 Download from PostgreSQL Official Site.
 
 #### Configuration
-```bash
+```
 sudo -u postgres psql  # Access PostgreSQL shell
 CREATE DATABASE algopharm;
 CREATE USER pharmadmin WITH PASSWORD 'securepassword';
