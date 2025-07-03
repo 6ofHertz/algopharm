@@ -84,6 +84,13 @@ const Login = () => {
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Login"}
             </Button>
             
+            {/* Link to Registration Page */}
+            <div className="text-center text-sm">
+              Don't have an account?{" "}
+              <a href="/register" className="underline">
+                Sign Up
+              </a>
+            </div>
             <div className="w-full">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">

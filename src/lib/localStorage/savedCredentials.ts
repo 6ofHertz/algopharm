@@ -4,7 +4,7 @@ export interface SavedCredential {
   id: string;              // Unique ID or Firebase UID
   email: string;
   password?: string;       // Only if "Remember Me" is checked (encrypted)
-  employeeId: string;
+  employeeId?: string;
   name: string;
   role?: string;
   avatarUrl?: string;
