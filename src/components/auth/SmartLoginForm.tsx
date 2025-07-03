@@ -10,6 +10,7 @@ import { SavedCredential, saveCredential } from '@/lib/localStorage/savedCredent
 import { createSession } from '@/lib/localStorage/sessionManager';
 import { toast } from 'sonner';
 
+import { useNavigate } from 'react-router-dom';
 interface SmartLoginFormProps {
   prefilledCredential?: SavedCredential;
   onBack?: () => void;
@@ -25,6 +26,7 @@ export const SmartLoginForm: React.FC<SmartLoginFormProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const navigate = useNavigate();
 
   const { login } = useAuth();
 
