@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { UserSelectionScreen } from '@/components/auth/UserSelectionScreen';
 import { SmartLoginForm } from '@/components/auth/SmartLoginForm';
 import { SavedCredential } from '@/lib/localStorage/savedCredentials';
+import { ThemeToggle } from '@/components/theme/theme-toggle';
+import pharmacyBg from '@/assets/pharmacy-pos-bg.jpg';
 
 export const SmartLogin: React.FC = () => {
   const [currentView, setCurrentView] = useState<'selection' | 'login'>('selection');
@@ -23,8 +25,23 @@ export const SmartLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full">
+    <div className="min-h-screen relative flex items-center justify-center p-4">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${pharmacyBg})` }}
+      />
+      
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+      
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+      
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-md">
         {currentView === 'selection' ? (
           <UserSelectionScreen
             onUserSelect={handleUserSelect}
