@@ -64,6 +64,7 @@ export const SmartLoginForm: React.FC<SmartLoginFormProps> = ({
       }
       
       toast.success('Login successful!');
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Login error:', error);
       setErrorMsg(error.message || 'Invalid credentials');

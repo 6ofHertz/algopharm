@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { supabase } from '@lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 // Corrected UserRole definition and moved to be exported
 export type UserRole = "cashier" | "pharmacist" | "admin" | "manager";
 interface AuthContextType {
@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (name: string, email: string, password: string, role: UserRole) => {
     try {
-      const { user, error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -67,12 +67,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw error;
       }
 
-      if (user) {
+      if (data.user) {
         // Generate a simple unique employee ID (you might want a more robust method)
         const employee_id = Date.now().toString(); 
 
-        const { data, error: insertError } = await supabase.from('users').insert([
-          { id: user.id, name, role, employee_id },
+        const { data: insertData, error: insertError } = await supabase.from('users').insert([
+          { id: data.user.id, name, role, employee_id },
         ]);
         
         if (insertError) {
