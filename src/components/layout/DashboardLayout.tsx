@@ -109,9 +109,18 @@ export const DashboardLayout = () => {
         
         <div className="flex flex-1 overflow-hidden">
           {/* Sidebar */}
+ {sidebarOpen && isMobile && (
+            <div
+              className="fixed inset-0 z-40 bg-black/50"
+              onClick={toggleSidebar}
+            ></div>
+          )}
+
           <div className={cn(
-            "h-full bg-background border-r transition-all duration-300 flex flex-col",
-            sidebarOpen ? "w-64" : "w-16"
+            "h-full bg-background border-r transition-all duration-300 flex flex-col", // Common styles
+            "fixed inset-y-0 left-0 z-50 w-full transform transition-transform ease-in-out duration-300 md:relative md:translate-x-0", // Mobile: fixed overlay, full width, transition
+            sidebarOpen ? "translate-x-0" : "-translate-x-full", // Mobile: Visible or hidden
+            sidebarOpen ? "md:w-64" : "md:w-16" // Desktop: Collapsible width
           )}>
             {/* Logo section */}
             <div className="pt-6 pb-2 px-4">
@@ -190,7 +199,7 @@ export const DashboardLayout = () => {
           {/* Main content */}
           <div className="flex flex-col flex-1 overflow-hidden">
             <header className="flex h-14 items-center gap-4 border-b bg-background px-6">
-              <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+              <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden">
                 <Menu className="h-5 w-5" />
               </Button>
               <div className="flex-1">
